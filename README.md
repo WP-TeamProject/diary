@@ -1,7 +1,32 @@
-# WP-TeamPoject:diary
+## DB 구조
 
-## Overview: AI 감정 분석 일기장 시스템 및 폐쇄형 SNS
+### users
+- _id (ObjectId)
+- username (string)
+- email (string)
+- password (hashed_string)
+- created_at (datetime)
 
--	**Front-End (10점)**: MDBootstrap 프레임워크를 활용하여 현대적이고 직관적인 반응형 UI를 구축함. 특히 예.감정 페르소나 카드의 레이아웃과 수집 도감 인터페이스를 시각적으로 매력 있게 구현하여 사용자 경험의 완성도를 높임.
--	**Back-End (Flask 10점 & MongoDB 15점)**: Python 기반의 Flask로 비즈니스 로직을 처리하며, 비정형 데이터 처리에 최적화된 MongoDB를 통해 데이터베이스를 관리함. 특히 평가 비중이 높은 복잡도(Complexity, 15점)를 확보하기 위해, 다수의 사용자가 여러 비밀 방에 소속되는 'Many-to-Many' 관계와 사용자와 일기 간의 'One-to-Many' 관계를 논리적으로 설계함. Flask 세션과 연동된 접근 제어 로직을 통해 '비밀 방'의 데이터 무결성과 보안을 강화함.
--	**AI Integration**: Huggingface의 감정 분석 모델을 연동하여 텍스트 데이터에서 실시간으로 정밀한 감정 수치를 추출함. 이는 단순한 텍스트 저장 시스템을 넘어 지능형 서비스로서의 기술적 깊이를 증명하는 지점임.
+### rooms
+- _id (ObjectId)
+- room_name (string)
+- owner_id (string)
+- created_at (datetime)
+
+### room_members
+- _id (ObjectId)
+- room_id (ObjectId)
+- user_id (ObjectId)
+- joined_at (datetime)
+
+### posts
+- _id (ObjectId)
+- room_id (ObjectId)
+- title (string)
+- content (string)
+- author_id (ObjectId)
+- author_name (string)
+- emotion (string)
+- views (int)
+- created_at (datetime)
+- updated_at (datetime)
