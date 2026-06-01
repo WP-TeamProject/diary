@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}멤버 초대 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-wrap {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .form-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+  }
+  .form-group { margin-bottom: 1.25rem; }
+  .btn-row { display: flex; gap: .75rem; margin-top: 1.5rem; }
+  .btn-full { flex: 1; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <h1 class="page-title" style="font-size:1.6rem;margin-bottom:.3rem">멤버 초대</h1>
+    <p class="page-sub" style="margin-bottom:1.5rem">아이디를 입력해서 그룹에 초대하세요</p>
+
+    <form method="POST" action="{{ url_for('room.invite', room_id=room_id) }}">
+      <div class="form-group">
+        <label class="md-label" for="invite_username">초대할 아이디</label>
+        <input class="md-input" type="text" id="invite_username" name="invite_username"
+               placeholder="초대할 사용자의 아이디" required autocomplete="off" />
+      </div>
+      <div class="btn-row">
+        <a href="{{ url_for('room.detail', room_id=room_id) }}" class="btn-ghost btn-full">취소</a>
+        <button type="submit" class="btn-accent btn-full">초대하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

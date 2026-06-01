@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko" data-mdb-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Moodiary{% endblock %}</title>
+
+  <!-- MDB CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #14171f;
+      --surface2:  #1c2030;
+      --border:    #2a2f40;
+      --accent:    #7c6af7;
+      --accent2:   #b89eff;
+      --text:      #e4e6f0;
+      --muted:     #7a7f96;
+
+      --happy:     #f9c74f;
+      --sad:       #577590;
+      --normal:    #90be6d;
+      --angry:     #f94144;
+      --anxious:   #f3722c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .moodiary-nav {
+      background: rgba(13,15,20,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .nav-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--accent2) !important;
+      letter-spacing: .02em;
+      text-decoration: none;
+    }
+    .nav-brand span { color: var(--accent); }
+    .nav-link-item {
+      color: var(--muted) !important;
+      font-size: .875rem;
+      text-decoration: none;
+      transition: color .2s;
+      padding: .4rem .75rem;
+      border-radius: 6px;
+    }
+    .nav-link-item:hover { color: var(--text) !important; background: var(--surface2); }
+    .nav-btn-primary {
+      background: var(--accent);
+      color: #fff !important;
+      border-radius: 20px;
+      padding: .35rem 1rem;
+      font-size: .875rem;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .nav-btn-primary:hover { opacity: .85; }
+    .username-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--accent2);
+      border-radius: 20px;
+      padding: .3rem .9rem;
+      font-size: .8rem;
+    }
+
+    /* ── Flash messages ── */
+    .flash-wrap {
+      position: fixed;
+      top: 68px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .flash-item {
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: .75rem 1.25rem;
+      border-radius: 10px;
+      font-size: .875rem;
+      box-shadow: 0 4px 20px rgba(124,106,247,.25);
+      animation: slideIn .3s ease;
+      max-width: 320px;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    /* ── Page wrapper ── */
+    .page-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+    .page-wrap-wide {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    /* ── Card ── */
+    .md-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    /* ── Form controls ── */
+    .md-label {
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .4rem;
+      display: block;
+    }
+    .md-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: .7rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .md-input:focus { border-color: var(--accent); }
+    .md-textarea { resize: vertical; min-height: 160px; }
+
+    /* ── Buttons ── */
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: .7rem 1.6rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-accent:hover { opacity: .88; transform: translateY(-1px); color: #fff; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .65rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+    .btn-danger {
+      background: rgba(249,65,68,.15);
+      color: #f94144;
+      border: 1px solid rgba(249,65,68,.3);
+      border-radius: 10px;
+      padding: .65rem 1.4rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: background .2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-danger:hover { background: rgba(249,65,68,.28); color: #f94144; }
+
+    /* ── Emotion badge ── */
+    .emotion-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      border-radius: 20px;
+      padding: .25rem .75rem;
+      font-size: .78rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+    .emotion-happy  { background: rgba(249,199,79,.15);  color: var(--happy);  border: 1px solid rgba(249,199,79,.3); }
+    .emotion-sad    { background: rgba(87,117,144,.15);  color: var(--sad);    border: 1px solid rgba(87,117,144,.3); }
+    .emotion-normal { background: rgba(144,190,109,.15); color: var(--normal); border: 1px solid rgba(144,190,109,.3); }
+    .emotion-angry  { background: rgba(249,65,68,.15);   color: var(--angry);  border: 1px solid rgba(249,65,68,.3); }
+    .emotion-anxious{ background: rgba(243,114,44,.15);  color: var(--anxious);border: 1px solid rgba(243,114,44,.3); }
+
+    /* ── Page heading ── */
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--text);
+      margin-bottom: .35rem;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Divider ── */
+    .md-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* ── Footer ── */
+    .md-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="moodiary-nav d-flex align-items-center justify-content-between">
+  <a href="{{ url_for('main.home') }}" class="nav-brand">mood<span>·</span>iary</a>
+
+  <div class="d-flex align-items-center gap-2">
+    {% if session.get('user_id') %}
+      <a href="{{ url_for('room.room_list') }}" class="nav-link-item">그룹</a>
+      <span class="username-badge">{{ session.get('username') }}</span>
+      <a href="{{ url_for('user.logout') }}" class="nav-link-item">로그아웃</a>
+      <form method="POST" action="{{ url_for('user.withdraw') }}"
+          onsubmit="return confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제됩니다.')"
+          style="display:inline">
+        <button type="submit" class="nav-link-item"
+            style="background:none;border:none;color:#f94144;cursor:pointer;">회원탈퇴</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('user.login') }}"    class="nav-link-item">로그인</a>
+      <a href="{{ url_for('user.register') }}" class="nav-btn-primary">회원가입</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ── Flash messages ── -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash-wrap" id="flashWrap">
+      {% for msg in messages %}
+        <div class="flash-item">{{ msg }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const fw = document.getElementById('flashWrap');
+        if (fw) fw.style.opacity = '0';
+        fw.style.transition = 'opacity .5s';
+        setTimeout(() => fw && fw.remove(), 500);
+      }, 3000);
+    </script>
+  {% endif %}
+{% endwith %}
+
+<!-- ── Content ── -->
+{% block content %}{% endblock %}
+
+<!-- ── Footer ── -->
+<footer class="md-footer">
+  © 2026 Moodiary — 감정을 기록하고, 나를 이해하는 공간
+</footer>
+
+<!-- MDB JS -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

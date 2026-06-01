@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .post-container { max-width: 720px; margin: 0 auto; }
+  .post-head {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+  }
+  .post-main-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .post-info-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    color: var(--muted);
+    font-size: .82rem;
+  }
+  .post-author { color: var(--text); font-weight: 500; }
+  .post-body-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.85;
+    white-space: pre-wrap;
+    color: var(--text);
+    font-size: .95rem;
+  }
+  .post-actions {
+    display: flex;
+    gap: .75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <div style="margin-bottom:1.25rem">
+    <a href="{{ url_for('post.post_list', room_id=post.room_id) }}" class="btn-ghost" style="font-size:.85rem;padding:.4rem .9rem;">← 목록으로</a>
+  </div>
+
+  <div class="post-container">
+    <!-- Header -->
+    <div class="post-head">
+      {% set emotion = post.emotion | default('normal') %}
+      <div style="margin-bottom:.75rem">
+        <span class="emotion-badge emotion-{{ emotion }}">
+          {% if emotion == 'happy' %}😊 행복
+          {% elif emotion == 'sad' %}😢 슬픔
+          {% elif emotion == 'angry' %}😠 분노
+          {% elif emotion == 'anxious' %}😰 불안
+          {% else %}😌 평온
+          {% endif %}
+        </span>
+      </div>
+      <h1 class="post-main-title">{{ post.title }}</h1>
+      <div class="post-info-row">
+        <span class="post-author">{{ post.author_name }}</span>
+        <span>{{ post.created_at.strftime('%Y년 %m월 %d일 %H:%M') if post.created_at else '' }}</span>
+        {% if post.updated_at and post.updated_at != post.created_at %}
+          <span>수정됨</span>
+        {% endif %}
+        <span>조회 {{ post.views | default(0) }}</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="post-body-card">{{ post.content }}</div>
+
+    <!-- Actions (author only) -->
+    {% if session.get('user_id') == post.author_id|string %}
+      <div class="post-actions">
+        <a href="{{ url_for('post.update', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">수정</a>
+        <form method="POST"
+              action="{{ url_for('post.delete', room_id=post.room_id, post_id=post._id) }}"
+              onsubmit="return confirm('게시글을 삭제하시겠어요?')"
+              style="display:inline">
+          <button type="submit" class="btn-danger">삭제</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

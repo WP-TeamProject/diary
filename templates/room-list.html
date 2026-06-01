@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}내 그룹 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .room-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color .25s, transform .2s;
+    display: block;
+  }
+  .room-card:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+  .room-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: .5rem;
+  }
+  .room-meta { color: var(--muted); font-size: .8rem; }
+  .room-icon {
+    font-size: 1.6rem;
+    margin-bottom: .75rem;
+  }
+
+  .create-room-card {
+    background: transparent;
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--muted);
+    transition: border-color .25s, color .25s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 130px;
+    font-size: .9rem;
+  }
+  .create-room-card:hover { border-color: var(--accent); color: var(--accent2); }
+  .create-room-card .plus { font-size: 1.8rem; }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: .5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
+    <div>
+      <h1 class="page-title">내 그룹</h1>
+      <p class="page-sub">초대받은 폐쇄형 그룹에서 소통하세요</p>
+    </div>
+    <a href="{{ url_for('room.create') }}" class="btn-accent">+ 그룹 만들기</a>
+  </div>
+
+  {% if rooms %}
+    <div class="rooms-grid">
+      {% for room in rooms %}
+        <a href="{{ url_for('room.detail', room_id=room._id) }}" class="room-card">
+          <div class="room-icon">🏠</div>
+          <div class="room-name">{{ room.room_name }}</div>
+          <div class="room-meta">{{ room.created_at.strftime('%Y.%m.%d') if room.created_at else '' }}</div>
+        </a>
+      {% endfor %}
+      <a href="{{ url_for('room.create') }}" class="create-room-card">
+        <span class="plus">＋</span>
+        <span>새 그룹 만들기</span>
+      </a>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="emoji">🔒</div>
+      <h3>아직 참여 중인 그룹이 없어요</h3>
+      <p style="margin-bottom:1.5rem">그룹을 만들거나 초대를 기다려 보세요.</p>
+      <a href="{{ url_for('room.create') }}" class="btn-accent">첫 그룹 만들기</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
