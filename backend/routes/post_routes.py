@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
+from bson.objectid import ObjectId
 
-from backend.services.post_service import create_post, get_post_by_id, get_posts_by_room, update_post, delete_post
 from backend.services.room_service import get_room_by_id, is_member
+from backend.services.post_service import create_post, get_post_by_id, get_posts_by_room, update_post, delete_post
 from backend.models.post_model import increase_views
 from backend.decorators import login_required
 
@@ -49,7 +50,7 @@ def detail(room_id, post_id):
         flash('게시글이 존재하지 않습니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
-    if post['room_id'] != room_id:
+    if post['room_id'] != ObjectId(room_id):
         flash('잘못된 접근입니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
@@ -114,11 +115,11 @@ def update(room_id, post_id):
         flash('게시글이 존재하지 않습니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
-    if post['room_id'] != room_id:
+    if post['room_id'] != ObjectId(room_id):
         flash('잘못된 접근입니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
-    if session['user_id'] != post['author_id']:
+    if post['author_id'] != ObjectId(user_id):
         flash('수정 권한이 없습니다.')
         return redirect(url_for('post.detail', room_id=room_id, post_id=post_id))
 
@@ -163,11 +164,11 @@ def delete(room_id, post_id):
         flash('게시글이 존재하지 않습니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
-    if post['room_id'] != room_id:
+    if post['room_id'] != ObjectId(room_id):
         flash('잘못된 접근입니다.')
         return redirect(url_for('post.post_list', room_id=room_id))
 
-    if session['user_id'] != post['author_id']:
+    if post['author_id'] != ObjectId(user_id):
         flash('삭제 권한이 없습니다.')
         return redirect(url_for('post.detail', room_id=room_id, post_id=post_id))
 

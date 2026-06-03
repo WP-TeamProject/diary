@@ -19,6 +19,13 @@
 - user_id (ObjectId)
 - joined_at (datetime)
 
+### room_invites
+- _id (ObjectId)
+- room_id (ObjectId)
+- user_id (ObjectId)
+- status (string)
+- invited_at (datetime)
+
 ### posts
 - _id (ObjectId)
 - room_id (ObjectId)

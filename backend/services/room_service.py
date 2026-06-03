@@ -4,6 +4,7 @@ from datetime import datetime
 from backend.models.user_model import find_user_by_username
 from backend.models.room_model import insert_room, find_room_by_id, delete_room_model
 from backend.models.room_member_model import add_member, find_member, find_members_by_room, find_rooms_by_user, remove_member, delete_members_by_room
+from backend.models.room_invite_model import insert_invite, find_invite_by_id, find_pending_invites, find_pending_invite, update_invite_status
 
 # 새로운 방 생성
 def create_room(name, owner_id):
@@ -76,15 +77,49 @@ def invite_member(room_id, owner_id, username):
     if room['owner_id'] != ObjectId(owner_id):
         return 'UNAUTHORIZED'
 
-    user = find_user_by_username(username)
+    invite_user = find_user_by_username(username)
 
-    if not user:
+    if not invite_user:
         return 'NOT_EXIST_USER'
 
-    user_id = str(user['_id'])
+    invite_user_id = str(invite_user['_id'])
 
-    if is_member(room_id, user_id):
+    if is_member(room_id, invite_user_id):
         return 'ALREADY_MEMBER'
+    
+    if find_pending_invite(room_id, invite_user_id):
+        return 'ALREADY_INVITED'
+
+    invite_data = {
+        'room_id': ObjectId(room_id),
+        'user_id': ObjectId(invite_user_id),
+        'status': 'pending',
+        'invited_at': datetime.now()
+    }
+
+    insert_invite(invite_data)
+
+    return 'SUCCESS'
+
+# 사용자의 보류 중인 방 초대 조회
+def get_my_pending_invites(user_id):
+    return find_pending_invites(user_id)
+
+# 방 초대 수락
+def accept_invite(invite_id, user_id):
+    invite = find_invite_by_id(invite_id)
+
+    if not invite:
+        return 'NOT_EXIST_INVITE'
+
+    if invite['user_id'] != ObjectId(user_id):
+        return 'UNAUTHORIZED'
+
+    if invite['status'] != 'pending':
+        return 'INVALID_INVITE_STATUS'
+
+    room_id = str(invite['room_id'])
+    user_id = str(invite['user_id'])
 
     member_data = {
         'room_id': ObjectId(room_id),
@@ -93,6 +128,25 @@ def invite_member(room_id, owner_id, username):
     }
 
     add_member(member_data)
+
+    update_invite_status(invite_id, 'accepted')
+
+    return 'SUCCESS'
+
+# 방 초대 거절
+def reject_invite(invite_id, user_id):
+    invite = find_invite_by_id(invite_id)
+
+    if not invite:
+        return 'NOT_EXIST_INVITE'
+
+    if invite['user_id'] != ObjectId(user_id):
+        return 'UNAUTHORIZED'
+
+    if invite['status'] != 'pending':
+        return 'INVALID_INVITE_STATUS'
+
+    update_invite_status(invite_id, 'rejected')
 
     return 'SUCCESS'
 

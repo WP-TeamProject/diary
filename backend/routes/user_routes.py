@@ -144,7 +144,7 @@ def withdraw():
     if not success:
         flash('회원탈퇴에 실패했습니다.')
         return redirect(url_for('main.home'))
-    
+
     session.clear()
     flash('회원탈퇴가 완료되었습니다.')
     return redirect(url_for('main.home'))

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 
-from backend.services.room_service import create_room, get_room_by_id, is_owner, get_my_rooms, can_access_room, invite_member, leave_room, delete_room
+from backend.services.room_service import create_room, get_room_by_id, is_owner, get_my_rooms, can_access_room, invite_member, get_my_pending_invites, accept_invite, reject_invite, leave_room, delete_room
 from backend.decorators import login_required
 
 # 방 관련 라우트 Blueprint
@@ -90,6 +90,58 @@ def invite(room_id):
         return redirect(url_for('room.detail', room_id=room_id))
 
     return render_template('invite-room.html', room_id=room_id)
+
+# 사용자의 보류 중인 방 초대 목록 조회
+@room_bp.route('/invites')
+@login_required
+def invite_list():
+    user_id = session.get('user_id')
+
+    invites = get_my_pending_invites(user_id)
+
+    return render_template('invite-list.html', invites=invites)
+
+# 방 초대 수락
+@room_bp.route('/invites/<invite_id>/accept', methods=['POST'])
+@login_required
+def accept(invite_id):
+    user_id = session.get('user_id')
+
+    result = accept_invite(invite_id, user_id)
+
+    if result == 'NOT_EXIST_INVITE':
+        flash('존재하지 않는 초대입니다.')
+        return redirect(url_for('room.invite_list'))
+    elif result == 'UNAUTHORIZED':
+        flash('초대 수락 권한이 없습니다.')
+        return redirect(url_for('room.invite_list'))
+    elif result == 'INVALID_INVITE_STATUS':
+        flash('유효하지 않은 초대 상태입니다.')
+        return redirect(url_for('room.invite_list'))
+
+    flash('초대를 수락했습니다.')
+    return redirect(url_for('room.room_list'))
+
+# 방 초대 거절
+@room_bp.route('/invites/<invite_id>/reject', methods=['POST'])
+@login_required
+def reject(invite_id):
+    user_id = session.get('user_id')
+
+    result = reject_invite(invite_id, user_id)
+
+    if result == 'NOT_EXIST_INVITE':
+        flash('존재하지 않는 초대입니다.')
+        return redirect(url_for('room.invite_list'))
+    elif result == 'UNAUTHORIZED':
+        flash('초대 거절 권한이 없습니다.')
+        return redirect(url_for('room.invite_list'))
+    elif result == 'INVALID_INVITE_STATUS':
+        flash('유효하지 않은 초대 상태입니다.')
+        return redirect(url_for('room.invite_list'))
+
+    flash('초대를 거절했습니다.')
+    return redirect(url_for('room.invite_list'))
 
 # 방에서 나가기
 @room_bp.route('/rooms/<room_id>/leave', methods=['POST'])
