@@ -2,7 +2,6 @@ from bson.objectid import ObjectId
 from datetime import datetime
 
 from backend.services.emotion_service import analyze_emotion
-from backend.models.user_model import find_user_by_id
 from backend.models.post_model import insert_post, find_post_by_id, find_posts_by_room, update_post_model, delete_post_model
 
 # 게시글 생성 및 감정 분석
