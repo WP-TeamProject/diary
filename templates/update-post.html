@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}글 수정 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .write-wrap { max-width: 720px; margin: 0 auto; }
+  .ai-notice {
+    background: rgba(124,106,247,.1);
+    border: 1px solid rgba(124,106,247,.25);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.75rem;
+    font-size: .875rem;
+    color: var(--accent2);
+  }
+  .ai-notice .icon { font-size: 1.4rem; flex-shrink: 0; }
+  .form-group { margin-bottom: 1.25rem; }
+  .char-count {
+    text-align: right;
+    color: var(--muted);
+    font-size: .75rem;
+    margin-top: .35rem;
+  }
+  .btn-row { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.75rem; }
+  .current-emotion {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1.5rem;
+    font-size: .875rem;
+    color: var(--muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <div style="margin-bottom:1.25rem">
+    <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}"
+       class="btn-ghost" style="font-size:.85rem;padding:.4rem .9rem;">← 게시글로</a>
+  </div>
+
+  <div class="write-wrap">
+    <h1 class="page-title">글 수정</h1>
+    <p class="page-sub">내용을 수정하면 감정이 재분석됩니다</p>
+
+    <div class="current-emotion">
+      <span>현재 감정:</span>
+      {% set emotion = post.emotion | default('normal') %}
+      <span class="emotion-badge emotion-{{ emotion }}">
+        {% if emotion == 'happy' %}😊 행복
+        {% elif emotion == 'sad' %}😢 슬픔
+        {% elif emotion == 'angry' %}😠 분노
+        {% elif emotion == 'anxious' %}😰 불안
+        {% else %}😌 평온
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="ai-notice">
+      <span class="icon">🤖</span>
+      <span>수정 후 저장하면 AI가 감정을 다시 분석합니다.</span>
+    </div>
+
+    <div class="md-card">
+      <form method="POST" action="{{ url_for('post.update', room_id=post.room_id, post_id=post._id) }}">
+        <div class="form-group">
+          <label class="md-label" for="title">제목</label>
+          <input class="md-input" type="text" id="title" name="title"
+                 value="{{ post.title }}" required />
+        </div>
+        <div class="form-group">
+          <label class="md-label" for="content">내용</label>
+          <textarea class="md-input md-textarea" id="content" name="content"
+                    required oninput="updateCount(this)">{{ post.content }}</textarea>
+          <div class="char-count" id="charCount">{{ post.content | length }}자</div>
+        </div>
+        <div class="btn-row">
+          <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">취소</a>
+          <button type="submit" class="btn-accent">재분석 후 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function updateCount(el) {
+    document.getElementById('charCount').textContent = el.value.length + '자';
+  }
+</script>
+{% endblock %}

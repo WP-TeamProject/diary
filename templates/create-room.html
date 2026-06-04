@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}그룹 만들기 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-wrap {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .form-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+  }
+  .form-group { margin-bottom: 1.25rem; }
+  .btn-row { display: flex; gap: .75rem; margin-top: 1.5rem; }
+  .btn-full { flex: 1; text-align: center; }
+  .tip {
+    background: rgba(124,106,247,.1);
+    border: 1px solid rgba(124,106,247,.25);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    color: var(--accent2);
+    font-size: .82rem;
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <h1 class="page-title" style="font-size:1.6rem;margin-bottom:.3rem">새 그룹 만들기</h1>
+    <p class="page-sub" style="margin-bottom:1.5rem">폐쇄형 그룹을 생성하고 친구를 초대하세요</p>
+
+    <div class="tip">
+      💡 그룹을 만들면 자동으로 방장이 됩니다. 멤버는 초대로만 참여할 수 있어요.
+    </div>
+
+    <form method="POST" action="{{ url_for('room.create') }}">
+      <div class="form-group">
+        <label class="md-label" for="room_name">그룹 이름</label>
+        <input class="md-input" type="text" id="room_name" name="room_name"
+               placeholder="그룹 이름을 입력하세요" required />
+      </div>
+      <div class="btn-row">
+        <a href="{{ url_for('room.room_list') }}" class="btn-ghost btn-full">취소</a>
+        <button type="submit" class="btn-accent btn-full">만들기</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
