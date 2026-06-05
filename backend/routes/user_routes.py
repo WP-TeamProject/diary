@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 
-from backend.services.user_service import validate_register, register_user, login_user, update_username, update_password, delete_user
+from backend.services.user_service import validate_register, register_user, login_user, get_user_by_id, update_username, update_password, delete_user
 from backend.decorators import login_required
 
 # 사용자 관련 라우트 Blueprint
@@ -18,18 +18,16 @@ def register():
             flash('모든 값을 입력해주세요.')
             return redirect(url_for('user.register'))
 
-        result = validate_register(username, email, password)
+        register_error = validate_register(username, email, password)
 
-        if result == 'USERNAME_SHORT':
+        if register_error == 'USERNAME_SHORT':
             flash('아이디는 4자 이상이어야 합니다.')
-            return redirect(url_for('user.register'))
-
-        if result == 'PASSWORD_SHORT':
+        elif register_error == 'PASSWORD_SHORT':
             flash('비밀번호는 8자 이상이어야 합니다.')
-            return redirect(url_for('user.register'))
-
-        if result == 'EMAIL_INVALID':
+        elif register_error == 'EMAIL_INVALID':
             flash('이메일 형식이 올바르지 않습니다.')
+
+        if register_error:
             return redirect(url_for('user.register'))
 
         user = register_user(username, email, password)
@@ -59,6 +57,7 @@ def login():
         # 로그인 세션 저장
         session['user_id'] = str(user['_id'])
         session['username'] = user['username']
+        session['role'] = user['role']
 
         flash('로그인되었습니다.')
         return redirect(url_for('main.home'))
@@ -72,78 +71,87 @@ def logout():
     flash('로그아웃되었습니다.')
     return redirect(url_for('main.home'))
 
-# 아이디 변경
-@user_bp.route('/change-username', methods=['GET', 'POST'])
+# 마이페이지
+@user_bp.route('/mypage')
 @login_required
-def change_username():
+def mypage():
     user_id = session.get('user_id')
 
-    if request.method == 'POST':
-        new_username = request.form.get('username', '').strip()
+    user = get_user_by_id(user_id)
 
-        if not new_username:
-            flash('아이디를 입력하세요.')
-            return redirect(url_for('user.change_username'))
+    return render_template('mypage.html', user=user)
 
-        result = update_username(user_id, new_username)
+# 아이디 변경
+@user_bp.route('/mypage/edit-username', methods=['POST'])
+@login_required
+def edit_username():
+    user_id = session.get('user_id')
 
-        if result == 'DUPLICATE':
-            flash('이미 존재하는 아이디입니다.')
-            return redirect(url_for('user.change_username'))
-        elif result == 'DB_FAIL':
-            flash('아이디 변경에 실패했습니다.')
-            return redirect(url_for('user.change_username'))
+    new_username = request.form.get('username', '').strip()
 
-        session['username'] = new_username
+    if not new_username:
+        flash('아이디를 입력하세요.')
+        return redirect(url_for('user.mypage'))
 
-        flash('아이디가 변경되었습니다.')
-        return redirect(url_for('main.home'))
+    result = update_username(user_id, new_username)
 
-    return render_template('change-username.html')
+    if result == 'DUPLICATE':
+        flash('이미 존재하는 아이디입니다.')
+        return redirect(url_for('user.mypage'))
+    elif result == 'DB_FAIL':
+        flash('아이디 변경에 실패했습니다.')
+        return redirect(url_for('user.mypage'))
+
+    session['username'] = new_username
+
+    flash('아이디가 변경되었습니다.')
+    return redirect(url_for('user.mypage'))
 
 # 비밀번호 변경
-@user_bp.route('/change-password', methods=['GET', 'POST'])
+@user_bp.route('/mypage/edit-password', methods=['POST'])
 @login_required
-def change_password():
+def edit_password():
     user_id = session.get('user_id')
 
-    if request.method == 'POST':
-        old_password = request.form.get('old_password', '').strip()
-        new_password = request.form.get('new_password', '').strip()
+    old_password = request.form.get('old_password', '').strip()
+    new_password = request.form.get('new_password', '').strip()
 
-        if not old_password or not new_password:
-            flash('모든 값을 입력해주세요.')
-            return redirect(url_for('user.change_password'))
+    if not old_password or not new_password:
+        flash('모든 값을 입력해주세요.')
+        return redirect(url_for('user.mypage'))
 
-        if len(new_password) < 8:
-            flash('비밀번호는 8자 이상이어야 합니다.')
-            return redirect(url_for('user.change_password'))
+    if len(new_password) < 8:
+        flash('비밀번호는 8자 이상이어야 합니다.')
+        return redirect(url_for('user.mypage'))
 
-        result = update_password(user_id, old_password, new_password)
+    result = update_password(user_id, old_password, new_password)
 
-        if result == 'WRONG_OLD_PASSWORD':
-            flash('현재 비밀번호가 올바르지 않습니다.')
-            return redirect(url_for('user.change_password'))
-        elif result == 'DB_FAIL':
-            flash('비밀번호 변경에 실패했습니다.')
-            return redirect(url_for('user.change_password'))
+    if result == 'WRONG_OLD_PASSWORD':
+        flash('현재 비밀번호가 올바르지 않습니다.')
+        return redirect(url_for('user.mypage'))
+    elif result == 'DB_FAIL':
+        flash('비밀번호 변경에 실패했습니다.')
+        return redirect(url_for('user.mypage'))
 
-        flash('비밀번호가 변경되었습니다.')
-        return redirect(url_for('main.home'))
-
-    return render_template('change-password.html')
+    flash('비밀번호가 변경되었습니다.')
+    return redirect(url_for('user.mypage'))
 
 # 회원탈퇴
-@user_bp.route('/withdraw', methods=['POST'])
+@user_bp.route('/mypage/withdraw', methods=['POST'])
 @login_required
 def withdraw():
     user_id = session.get('user_id')
 
-    success = delete_user(user_id)
+    password = request.form.get('password', '').strip()
 
-    if not success:
+    result = delete_user(user_id, password)
+
+    if result == 'WRONG_PASSWORD':
+        flash('비밀번호가 올바르지 않습니다.')
+        return redirect(url_for('user.mypage'))
+    elif result == 'DB_FAIL':
         flash('회원탈퇴에 실패했습니다.')
-        return redirect(url_for('main.home'))
+        return redirect(url_for('user.mypage'))
 
     session.clear()
     flash('회원탈퇴가 완료되었습니다.')
