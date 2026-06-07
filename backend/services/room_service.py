@@ -2,7 +2,7 @@ from bson.objectid import ObjectId
 from datetime import datetime
 
 from backend.models.user_model import find_user_by_username
-from backend.models.room_model import insert_room, find_room_by_id, delete_room_model
+from backend.models.room_model import insert_room, find_room_by_id, update_room_name_model, delete_room_model
 from backend.models.room_member_model import add_member, find_member, find_members_by_room, find_rooms_by_user, remove_member, delete_members_by_room
 from backend.models.room_invite_model import insert_invite, find_invite_by_id, find_pending_invites, find_pending_invite, update_invite_status
 
@@ -29,6 +29,20 @@ def create_room(name, owner_id):
 # 방 조회
 def get_room_by_id(room_id):
     return find_room_by_id(room_id)
+
+# 방 이름 변경
+def update_room_name(room_id, new_name):
+    room = find_room_by_id(room_id)
+
+    if not room:
+        return 'NOT_EXIST_ROOM'
+
+    success = update_room_name_model(room_id, new_name)
+
+    if not success:
+        return 'DB_FAIL'
+
+    return 'SUCCESS'
 
 # 방장 여부 확인
 def is_owner(room_id, user_id):

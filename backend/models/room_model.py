@@ -14,6 +14,14 @@ def find_room_by_id(room_id):
 def find_all_rooms():
     return list(current_app.db.rooms.find())
 
+# 방 이름 수정
+def update_room_name_model(room_id, new_name):
+    result = current_app.db.rooms.update_one(
+        {'_id': ObjectId(room_id)},
+        {'$set': {'room_name': new_name}}
+    )
+    return result.matched_count > 0
+
 # 방 삭제
 def delete_room_model(room_id):
     result = current_app.db.rooms.delete_one({'_id': ObjectId(room_id)})

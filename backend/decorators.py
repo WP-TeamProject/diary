@@ -14,3 +14,17 @@ def login_required(view):
         return view(*args, **kwargs)
 
     return wrapped_view
+
+# 관리자 권한 확인
+def admin_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        user_role = session.get('role')
+
+        if user_role != 'admin':
+            flash('관리자 권한이 필요합니다.')
+            return redirect(url_for('main.home'))
+
+        return view(*args, **kwargs)
+
+    return wrapped_view

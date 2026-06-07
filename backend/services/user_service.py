@@ -16,7 +16,7 @@ def validate_register(username, email, password):
     if not re.match(email_pattern, email):
         return 'EMAIL_INVALID'
 
-    return 'OK'
+    return None
 
 # 아이디 중복 확인 후 사용자 생성
 def register_user(username, email, password):
@@ -29,6 +29,7 @@ def register_user(username, email, password):
         'username': username,
         'email': email,
         'password': hashed_pw,
+        'role': 'user',
         'created_at': datetime.now()
     }
 
@@ -47,6 +48,10 @@ def login_user(username, password):
         return None
 
     return user
+
+# 사용자 정보 조회
+def get_user_by_id(user_id):
+    return find_user_by_id(user_id)
 
 # 아이디 변경
 def update_username(user_id, new_username):
@@ -77,5 +82,15 @@ def update_password(user_id, old_password, new_password):
     return 'SUCCESS'
 
 # 사용자 삭제 처리
-def delete_user(user_id):
-    return delete_user_model(user_id)
+def delete_user(user_id, password):
+    user = find_user_by_id(user_id)
+
+    if not check_password_hash(user['password'], password):
+        return 'WRONG_PASSWORD'
+
+    success = delete_user_model(user_id)
+
+    if not success:
+        return 'DB_FAIL'
+
+    return 'SUCCESS'
