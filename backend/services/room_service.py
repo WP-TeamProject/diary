@@ -1,7 +1,7 @@
 from bson.objectid import ObjectId
 from datetime import datetime
 
-from backend.models.user_model import find_user_by_username
+from backend.models.user_model import find_user_by_username, find_user_by_id
 from backend.models.room_model import insert_room, find_room_by_id, update_room_name_model, delete_room_model
 from backend.models.room_member_model import add_member, find_member, find_members_by_room, find_rooms_by_user, remove_member, delete_members_by_room
 from backend.models.room_invite_model import insert_invite, find_invite_by_id, find_pending_invites, find_pending_invite, update_invite_status
@@ -57,6 +57,19 @@ def is_member(room_id, user_id):
 # 방 참여자 목록 조회
 def get_room_members(room_id):
     return find_members_by_room(room_id)
+
+# 방 참여자 목록 (username 포함)
+def get_room_members_with_names(room_id):
+    members = find_members_by_room(room_id)
+    result = []
+    for m in members:
+        user = find_user_by_id(str(m['user_id']))
+        result.append({
+            'user_id': str(m['user_id']),
+            'username': user['username'] if user else '(알 수 없음)',
+            'joined_at': m.get('joined_at')
+        })
+    return result
 
 # 사용자가 참여 중인 방 목록 조회
 def get_my_rooms(user_id):

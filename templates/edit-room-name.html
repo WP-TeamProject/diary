@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}방 이름 변경 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-wrap {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .form-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+  }
+  .form-group { margin-bottom: 1.25rem; }
+  .btn-row { display: flex; gap: .75rem; margin-top: 1.5rem; }
+  .btn-full { flex: 1; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <h1 class="page-title" style="font-size:1.6rem;margin-bottom:.3rem">방 이름 변경</h1>
+    <p class="page-sub" style="margin-bottom:1.5rem">
+      현재: <strong style="color:var(--accent2)">{{ room.room_name }}</strong>
+    </p>
+
+    <form method="POST" action="{{ url_for('room.edit_room_name', room_id=room._id) }}">
+      <div class="form-group">
+        <label class="md-label" for="room_name">새 방 이름</label>
+        <input class="md-input" type="text" id="room_name" name="room_name"
+               placeholder="새로운 방 이름을 입력하세요" required autocomplete="off" />
+      </div>
+      <div class="btn-row">
+        <a href="{{ url_for('room.detail', room_id=room._id) }}" class="btn-ghost btn-full">취소</a>
+        <button type="submit" class="btn-accent btn-full">변경하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -244,6 +244,53 @@
       font-size: .8rem;
       border-top: 1px solid var(--border);
     }
+
+    /* ── User dropdown ── */
+    .user-menu-wrap { position: relative; }
+    .username-badge {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .username-badge .caret {
+      width: 10px; height: 6px;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-width: 172px;
+      padding: .4rem 0;
+      box-shadow: 0 8px 28px rgba(0,0,0,.55);
+      z-index: 2000;
+    }
+    .user-dropdown.open { display: block; }
+    .udrop-item {
+      display: block;
+      width: 100%;
+      padding: .55rem 1.1rem;
+      color: var(--text);
+      font-size: .875rem;
+      text-decoration: none;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .udrop-item:hover { background: rgba(124,106,247,.12); color: var(--text); }
+    .udrop-item.danger { color: #f94144; }
+    .udrop-item.danger:hover { background: rgba(249,65,68,.1); }
+    .udrop-divider { border-top: 1px solid var(--border); margin: .35rem 0; }
   </style>
 
   {% block extra_head %}{% endblock %}
@@ -257,14 +304,25 @@
   <div class="d-flex align-items-center gap-2">
     {% if session.get('user_id') %}
       <a href="{{ url_for('room.room_list') }}" class="nav-link-item">그룹</a>
-      <span class="username-badge">{{ session.get('username') }}</span>
-      <a href="{{ url_for('user.logout') }}" class="nav-link-item">로그아웃</a>
-      <form method="POST" action="{{ url_for('user.withdraw') }}"
-          onsubmit="return confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제됩니다.')"
-          style="display:inline">
-        <button type="submit" class="nav-link-item"
-            style="background:none;border:none;color:#f94144;cursor:pointer;">회원탈퇴</button>
-      </form>
+      <a href="{{ url_for('room.invite_list') }}" class="nav-link-item">📬 초대</a>
+      <div class="user-menu-wrap">
+        <button class="username-badge" id="userMenuBtn" onclick="toggleUserMenu(event)">
+          {{ session.get('username') }}
+          <svg class="caret" viewBox="0 0 10 6" fill="none">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="{{ url_for('user.change_username') }}" class="udrop-item">✏️ 아이디 변경</a>
+          <a href="{{ url_for('user.change_password') }}" class="udrop-item">🔑 비밀번호 변경</a>
+          <div class="udrop-divider"></div>
+          <a href="{{ url_for('user.logout') }}" class="udrop-item">로그아웃</a>
+          <form method="POST" action="{{ url_for('user.withdraw') }}"
+                onsubmit="return confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제됩니다.')">
+            <button type="submit" class="udrop-item danger">회원탈퇴</button>
+          </form>
+        </div>
+      </div>
     {% else %}
       <a href="{{ url_for('user.login') }}"    class="nav-link-item">로그인</a>
       <a href="{{ url_for('user.register') }}" class="nav-btn-primary">회원가입</a>
@@ -301,6 +359,27 @@
 
 <!-- MDB JS -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.js"></script>
+<script>
+  function toggleUserMenu(e) {
+    e.stopPropagation();
+    const d = document.getElementById('userDropdown');
+    const btn = document.getElementById('userMenuBtn');
+    if (d) {
+      d.classList.toggle('open');
+      const caret = btn && btn.querySelector('.caret');
+      if (caret) caret.style.transform = d.classList.contains('open') ? 'rotate(180deg)' : '';
+    }
+  }
+  document.addEventListener('click', function() {
+    const d = document.getElementById('userDropdown');
+    const btn = document.getElementById('userMenuBtn');
+    if (d && d.classList.contains('open')) {
+      d.classList.remove('open');
+      const caret = btn && btn.querySelector('.caret');
+      if (caret) caret.style.transform = '';
+    }
+  });
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

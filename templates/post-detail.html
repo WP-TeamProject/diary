@@ -43,6 +43,99 @@
     justify-content: flex-end;
     flex-wrap: wrap;
   }
+
+  /* ── Comments ── */
+  .comments-section {
+    margin-top: 2rem;
+  }
+  .comments-heading {
+    font-size: .78rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .comments-count {
+    background: rgba(124,106,247,.15);
+    color: var(--accent2);
+    border-radius: 10px;
+    padding: .1rem .55rem;
+    font-size: .75rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .comment-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: .75rem;
+    transition: border-color .2s;
+  }
+  .comment-item:hover { border-color: var(--border); }
+  .comment-header {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin-bottom: .5rem;
+    flex-wrap: wrap;
+  }
+  .comment-author { font-weight: 500; font-size: .875rem; }
+  .comment-date { color: var(--muted); font-size: .78rem; }
+  .comment-edited { color: var(--muted); font-size: .75rem; }
+  .comment-content {
+    font-size: .9rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+  .comment-actions {
+    display: flex;
+    gap: .4rem;
+    margin-top: .65rem;
+  }
+  .comment-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: .78rem;
+    cursor: pointer;
+    padding: .2rem .5rem;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    transition: color .15s, background .15s;
+  }
+  .comment-btn:hover { color: var(--text); background: var(--surface2); }
+  .comment-btn.danger:hover { color: #f94144; background: rgba(249,65,68,.08); }
+  .comments-empty {
+    color: var(--muted);
+    font-size: .875rem;
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+  }
+  .comment-write {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    margin-top: 1rem;
+  }
+  .comment-write-label {
+    font-size: .78rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .65rem;
+    display: block;
+  }
+  .comment-edit-box {
+    margin-top: .65rem;
+    padding-top: .65rem;
+    border-top: 1px solid var(--border);
+  }
 </style>
 {% endblock %}
 
@@ -83,15 +176,103 @@
     <!-- Actions (author only) -->
     {% if session.get('user_id') == post.author_id|string %}
       <div class="post-actions">
-        <a href="{{ url_for('post.update', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">수정</a>
+        <a href="{{ url_for('post.edit', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">수정</a>
         <form method="POST"
-              action="{{ url_for('post.delete', room_id=post.room_id, post_id=post._id) }}"
+              action="{{ url_for('post.remove', room_id=post.room_id, post_id=post._id) }}"
               onsubmit="return confirm('게시글을 삭제하시겠어요?')"
               style="display:inline">
           <button type="submit" class="btn-danger">삭제</button>
         </form>
       </div>
     {% endif %}
+
+    <!-- ── Comments ── -->
+    <div class="comments-section">
+      <div class="comments-heading">
+        댓글
+        <span class="comments-count">{{ comments | length }}</span>
+      </div>
+
+      {% if comments %}
+        {% for comment in comments %}
+          <div class="comment-item">
+            <!-- 보기 모드 -->
+            <div id="view-{{ comment._id }}">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.author_name }}</span>
+                <span class="comment-date">
+                  {{ comment.created_at.strftime('%Y.%m.%d %H:%M') if comment.created_at else '' }}
+                </span>
+                {% if comment.updated_at %}
+                  <span class="comment-edited">(수정됨)</span>
+                {% endif %}
+              </div>
+              <div class="comment-content">{{ comment.content }}</div>
+              {% if session.get('user_id') == comment.author_id|string %}
+                <div class="comment-actions">
+                  <button class="comment-btn"
+                          onclick="showEdit('{{ comment._id }}')">수정</button>
+                  <form method="POST"
+                        action="{{ url_for('post.remove_comment', room_id=post.room_id, post_id=post._id, comment_id=comment._id) }}"
+                        onsubmit="return confirm('댓글을 삭제하시겠어요?')"
+                        style="display:inline">
+                    <button type="submit" class="comment-btn danger">삭제</button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+            <!-- 수정 모드 -->
+            {% if session.get('user_id') == comment.author_id|string %}
+              <div class="comment-edit-box" id="edit-{{ comment._id }}" style="display:none">
+                <form method="POST"
+                      action="{{ url_for('post.edit_comment', room_id=post.room_id, post_id=post._id, comment_id=comment._id) }}">
+                  <textarea class="md-input" name="content"
+                            style="min-height:72px;margin-bottom:.5rem">{{ comment.content }}</textarea>
+                  <div style="display:flex;gap:.5rem;justify-content:flex-end">
+                    <button type="button" class="btn-ghost"
+                            style="padding:.4rem .9rem;font-size:.85rem"
+                            onclick="hideEdit('{{ comment._id }}')">취소</button>
+                    <button type="submit" class="btn-accent"
+                            style="padding:.4rem .9rem;font-size:.85rem">저장</button>
+                  </div>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="comments-empty">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>
+      {% endif %}
+
+      <!-- 댓글 작성 -->
+      <div class="comment-write">
+        <span class="comment-write-label">댓글 쓰기</span>
+        <form method="POST"
+              action="{{ url_for('post.write_comment', room_id=post.room_id, post_id=post._id) }}">
+          <textarea class="md-input" name="content"
+                    placeholder="댓글을 입력하세요..."
+                    style="min-height:72px;margin-bottom:.65rem" required></textarea>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn-accent"
+                    style="padding:.5rem 1.2rem;font-size:.875rem">댓글 달기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function showEdit(id) {
+    document.getElementById('view-' + id).style.opacity = '.4';
+    document.getElementById('edit-' + id).style.display = 'block';
+  }
+  function hideEdit(id) {
+    document.getElementById('view-' + id).style.opacity = '1';
+    document.getElementById('edit-' + id).style.display = 'none';
+  }
+</script>
 {% endblock %}

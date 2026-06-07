@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 
-from backend.services.room_service import create_room, get_room_by_id, update_room_name, is_owner, get_my_rooms, can_access_room, invite_member, get_my_pending_invites, accept_invite, reject_invite, leave_room, delete_room
+from backend.services.room_service import create_room, get_room_by_id, update_room_name, is_owner, get_my_rooms, can_access_room, invite_member, get_my_pending_invites, accept_invite, reject_invite, leave_room, delete_room, get_room_members_with_names
 from backend.decorators import login_required
 
 # 방 관련 라우트 Blueprint
@@ -32,7 +32,8 @@ def detail(room_id):
         flash('접근 권한이 없습니다.')
         return redirect(url_for('room.room_list'))
 
-    return render_template('room-detail.html', room=room)
+    members = get_room_members_with_names(room_id)
+    return render_template('room-detail.html', room=room, members=members)
 
 # 새로운 방 생성
 @room_bp.route('/rooms/create', methods=['GET', 'POST'])
