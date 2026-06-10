@@ -1,14 +1,38 @@
 from bson.objectid import ObjectId
 from datetime import datetime
 
+from backend.services.room_service import is_member
 from backend.services.emotion_service import analyze_emotion
+from backend.models.room_model import find_room_by_id
 from backend.models.post_model import insert_post, find_post_by_id, find_posts_by_room, update_post_model, delete_post_model
+
+# 방 접근 검증
+def validate_room_access(room_id, user_id):
+    room = find_room_by_id(room_id)
+
+    if not room:
+        return 'NOT_EXIST_ROOM'
+
+    if not is_member(room_id, user_id):
+        return 'UNAUTHORIZED'
+
+    return None
+
+# 게시글 접근 검증
+def validate_post_access(room_id, post_id):
+    post = find_post_by_id(post_id)
+
+    if not post:
+        return 'NOT_EXIST_POST'
+
+    if post['room_id'] != ObjectId(room_id):
+        return 'INVALID_POST'
+
+    return None
 
 # 게시글 생성 및 감정 분석
 def create_post(room_id, title, content, author_id, author_name):
     emotion = analyze_emotion(content)
-
-    now = datetime.now()
 
     post_data = {
         'room_id': ObjectId(room_id),
@@ -18,8 +42,8 @@ def create_post(room_id, title, content, author_id, author_name):
         'author_name': author_name,
         'emotion': emotion,
         'views': 0,
-        'created_at': now,
-        'updated_at': now
+        'created_at': datetime.now(),
+        'updated_at': None
     }
 
     post_id = insert_post(post_data)

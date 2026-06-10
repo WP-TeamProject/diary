@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 
-from backend.services.room_service import create_room, get_room_by_id, is_owner, get_my_rooms, can_access_room, invite_member, get_my_pending_invites, accept_invite, reject_invite, leave_room, delete_room
+from backend.services.room_service import create_room, get_room_by_id, update_room_name, is_owner, get_my_rooms, can_access_room, invite_member, get_my_pending_invites, accept_invite, reject_invite, leave_room, delete_room
 from backend.decorators import login_required
 
 # 방 관련 라우트 Blueprint
@@ -53,6 +53,43 @@ def create():
         return redirect(url_for('room.detail', room_id=room_id))
 
     return render_template('create-room.html')
+
+# 방 이름 변경
+@room_bp.route('/rooms/<room_id>/edit-room-name', methods=['GET', 'POST'])
+@login_required
+def edit_room_name(room_id):
+    user_id = session.get('user_id')
+
+    if not is_owner(room_id, user_id):
+        flash('방장만 방 이름을 변경할 수 있습니다.')
+        return redirect(url_for('room.detail', room_id=room_id))
+
+    if request.method == 'POST':
+        new_name = request.form.get('room_name', '').strip()
+
+        if not new_name:
+            flash('방 이름을 입력하세요.')
+            return redirect(url_for('room.edit_room_name', room_id=room_id))
+
+        result = update_room_name(room_id, new_name)
+
+        if result == 'NOT_EXIST_ROOM':
+            flash('존재하지 않는 방입니다.')
+            return redirect(url_for('room.room_list'))
+        elif result == 'DB_FAIL':
+            flash('방 이름 변경에 실패했습니다.')
+            return redirect(url_for('room.detail', room_id=room_id))
+
+        flash('방 이름이 변경되었습니다.')
+        return redirect(url_for('room.detail', room_id=room_id))
+
+    room = get_room_by_id(room_id)
+
+    if not room:
+        flash('존재하지 않는 방입니다.')
+        return redirect(url_for('room.room_list'))
+
+    return render_template('edit-room-name.html', room=room)
 
 # 사용자를 방에 초대
 @room_bp.route('/rooms/<room_id>/invite', methods=['GET', 'POST'])
@@ -165,9 +202,9 @@ def leave(room_id):
     return redirect(url_for('room.room_list'))
 
 # 방 삭제
-@room_bp.route('/rooms/<room_id>/delete', methods=['POST'])
+@room_bp.route('/rooms/<room_id>/remove', methods=['POST'])
 @login_required
-def delete(room_id):
+def remove(room_id):
     user_id = session.get('user_id')
 
     result = delete_room(room_id, user_id)
