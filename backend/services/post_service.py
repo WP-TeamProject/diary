@@ -32,7 +32,7 @@ def validate_post_access(room_id, post_id):
 
 # 게시글 생성 및 감정 분석
 def create_post(room_id, title, content, author_id, author_name):
-    emotion = analyze_emotion(content)
+    result = analyze_emotion(content)
 
     post_data = {
         'room_id': ObjectId(room_id),
@@ -40,7 +40,8 @@ def create_post(room_id, title, content, author_id, author_name):
         'content': content,
         'author_id': ObjectId(author_id),
         'author_name': author_name,
-        'emotion': emotion,
+        'emotion': result['emotions'],
+        'emotion_response': result['response'],
         'views': 0,
         'created_at': datetime.now(),
         'updated_at': None
@@ -60,12 +61,13 @@ def get_posts_by_room(room_id):
 
 # 게시글 수정 및 감정 재분석
 def update_post(post_id, title, content):
-    emotion = analyze_emotion(content)
+    result = analyze_emotion(content)
 
     update_data = {
         'title': title,
         'content': content,
-        'emotion': emotion,
+        'emotion': result['emotions'],
+        'emotion_response': result['response'],
         'updated_at': datetime.now()
     }
 

@@ -74,15 +74,11 @@
             </div>
           </div>
           <div class="post-right">
-            {% set emotion = post.emotion | default('normal') %}
-            <div class="emotion-badge emotion-{{ emotion }}" style="margin-bottom:.4rem">
-              {% if emotion == 'happy' %}😊 행복
-              {% elif emotion == 'sad' %}😢 슬픔
-              {% elif emotion == 'angry' %}😠 분노
-              {% elif emotion == 'anxious' %}😰 불안
-              {% else %}😌 평온
-              {% endif %}
+            {% if post.emotion_response %}
+            <div style="max-width:180px;font-size:.75rem;color:var(--accent2);text-align:right;margin-bottom:.4rem;line-height:1.4;word-break:keep-all">
+              {{ post.emotion_response }}
             </div>
+            {% endif %}
             <div class="views">조회 {{ post.views | default(0) }}</div>
           </div>
         </a>

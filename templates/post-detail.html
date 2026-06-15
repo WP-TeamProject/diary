@@ -148,17 +148,11 @@
   <div class="post-container">
     <!-- Header -->
     <div class="post-head">
-      {% set emotion = post.emotion | default('normal') %}
-      <div style="margin-bottom:.75rem">
-        <span class="emotion-badge emotion-{{ emotion }}">
-          {% if emotion == 'happy' %}😊 행복
-          {% elif emotion == 'sad' %}😢 슬픔
-          {% elif emotion == 'angry' %}😠 분노
-          {% elif emotion == 'anxious' %}😰 불안
-          {% else %}😌 평온
-          {% endif %}
-        </span>
+      {% if post.emotion_response %}
+      <div style="margin-bottom:.75rem;font-size:.9rem;color:var(--accent2);font-weight:500">
+        {{ post.emotion_response }}
       </div>
+      {% endif %}
       <h1 class="post-main-title">{{ post.title }}</h1>
       <div class="post-info-row">
         <span class="post-author">{{ post.author_name }}</span>
