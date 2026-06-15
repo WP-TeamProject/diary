@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}받은 초대 — Moodiary{% endblock %}
+
+{% block extra_head %}
+<style>
+  .invite-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+  .invite-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .invite-card:hover { border-color: var(--accent); }
+  .invite-room-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: .25rem;
+  }
+  .invite-meta { color: var(--muted); font-size: .8rem; }
+  .invite-actions { display: flex; gap: .65rem; flex-shrink: 0; }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: .5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+  <h1 class="page-title">받은 초대</h1>
+  <p class="page-sub">수락하면 해당 그룹의 멤버가 됩니다</p>
+
+  {% if invites %}
+    <div class="invite-list">
+      {% for invite in invites %}
+        <div class="invite-card">
+          <div>
+            <div class="invite-room-name">🏠 {{ invite.room_name if invite.room_name else '그룹' }}</div>
+            <div class="invite-meta">
+              {{ invite.invited_at.strftime('%Y.%m.%d %H:%M') if invite.invited_at else '' }}
+            </div>
+          </div>
+          <div class="invite-actions">
+            <form method="POST" action="{{ url_for('room.accept', invite_id=invite._id) }}" style="display:inline">
+              <button type="submit" class="btn-accent" style="padding:.5rem 1.1rem;font-size:.875rem">수락</button>
+            </form>
+            <form method="POST" action="{{ url_for('room.reject', invite_id=invite._id) }}"
+                  onsubmit="return confirm('초대를 거절하시겠어요?')" style="display:inline">
+              <button type="submit" class="btn-ghost" style="padding:.5rem 1.1rem;font-size:.875rem">거절</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="emoji">📬</div>
+      <h3>받은 초대가 없어요</h3>
+      <p>그룹 방장에게 초대를 요청해 보세요.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

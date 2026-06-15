@@ -33,6 +33,64 @@
   }
   .action-row { display: flex; gap: .75rem; flex-wrap: wrap; }
 
+  /* members */
+  .members-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .members-heading {
+    font-size: .78rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .members-count {
+    background: rgba(124,106,247,.15);
+    color: var(--accent2);
+    border-radius: 10px;
+    padding: .1rem .55rem;
+    font-size: .75rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .members-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+  }
+  .member-row {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .55rem .65rem;
+    border-radius: 10px;
+    transition: background .15s;
+  }
+  .member-row:hover { background: var(--surface2); }
+  .member-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(124,106,247,.18);
+    border: 1px solid rgba(124,106,247,.28);
+    color: var(--accent2);
+    font-size: .85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'DM Serif Display', serif;
+  }
+  .member-name { font-size: .9rem; }
+  .member-joined { font-size: .74rem; color: var(--muted); margin-top: .05rem; }
+
   /* danger zone */
   .danger-zone {
     margin-top: 2rem;
@@ -74,9 +132,38 @@
       <a href="{{ url_for('post.write', room_id=room._id) }}"    class="btn-ghost">글 쓰기</a>
       {% if room.owner_id|string == session.get('user_id') %}
         <a href="{{ url_for('room.invite', room_id=room._id) }}" class="btn-ghost">멤버 초대</a>
+        <a href="{{ url_for('room.edit_room_name', room_id=room._id) }}" class="btn-ghost">이름 변경</a>
       {% endif %}
     </div>
   </div>
+
+  <!-- Member list -->
+  {% if members %}
+  <div class="members-section">
+    <div class="members-heading">
+      멤버
+      <span class="members-count">{{ members | length }}</span>
+    </div>
+    <div class="members-grid">
+      {% for member in members %}
+        <div class="member-row">
+          <div class="member-avatar">{{ member.username[0] | upper }}</div>
+          <div>
+            <div class="member-name">
+              {{ member.username }}
+              {% if room.owner_id|string == member.user_id %}
+                <span class="owner-badge" style="margin-left:.45rem">방장</span>
+              {% endif %}
+            </div>
+            <div class="member-joined">
+              {{ member.joined_at.strftime('%Y.%m.%d 참여') if member.joined_at else '' }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Danger zone -->
   <div class="danger-zone">
@@ -87,10 +174,10 @@
           <button type="submit" class="btn-danger">그룹 나가기</button>
         </form>
       {% else %}
-        <form method="POST" action="{{ url_for('room.delete', room_id=room._id) }}"
+        <form method="POST" action="{{ url_for('room.remove', room_id=room._id) }}"
               onsubmit="return confirm('그룹을 삭제하면 모든 게시글도 삭제됩니다. 계속하시겠어요?')">
           <button type="submit" class="btn-danger">그룹 삭제</button>
-        </form>     
+        </form>
       {% endif %}
     </div>
   </div>
