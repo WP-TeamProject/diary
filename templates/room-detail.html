@@ -1,27 +1,7 @@
-{% extends "base.html" %}
-{% block title %}{{ room.room_name }} — Moodiary{% endblock %}
+{% extends "base.html" %} {% block title %}{{ room.room_name }} — Moodiary{% endblock %}
 
 {% block extra_head %}
 <style>
-  .room-header {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.75rem 2rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .room-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.8rem;
-    margin-bottom: .35rem;
-  }
-  .room-meta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .room-meta-item { color: var(--muted); font-size: .82rem; }
   .owner-badge {
     display: inline-block;
     background: rgba(124,106,247,.15);
@@ -31,16 +11,8 @@
     padding: .2rem .75rem;
     font-size: .75rem;
   }
-  .action-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+  
 
-  /* members */
-  .members-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
   .members-heading {
     font-size: .78rem;
     letter-spacing: .08em;
@@ -57,129 +29,137 @@
     border-radius: 10px;
     padding: .1rem .55rem;
     font-size: .75rem;
-    letter-spacing: 0;
-    text-transform: none;
   }
-  .members-grid {
-    display: flex;
-    flex-direction: column;
-    gap: .35rem;
-  }
+
+
   .member-row {
     display: flex;
     align-items: center;
     gap: .85rem;
-    padding: .55rem .65rem;
+    padding: .65rem .85rem;
     border-radius: 10px;
     transition: background .15s;
   }
   .member-row:hover { background: var(--surface2); }
+  
+
   .member-avatar {
-    width: 34px; height: 34px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     background: rgba(124,106,247,.18);
     border: 1px solid rgba(124,106,247,.28);
     color: var(--accent2);
-    font-size: .85rem;
-    font-weight: 500;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     font-family: 'DM Serif Display', serif;
   }
-  .member-name { font-size: .9rem; }
-  .member-joined { font-size: .74rem; color: var(--muted); margin-top: .05rem; }
+  
 
-  /* danger zone */
   .danger-zone {
-    margin-top: 2rem;
     background: rgba(249,65,68,.06);
     border: 1px solid rgba(249,65,68,.2);
     border-radius: 14px;
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem;
   }
-  .danger-title {
-    color: #f94144;
-    font-size: .8rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    margin-bottom: .75rem;
-  }
+
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-wrap">
-  <div style="margin-bottom:1.25rem">
-    <a href="{{ url_for('room.room_list') }}" class="btn-ghost" style="font-size:.85rem;padding:.4rem .9rem;">← 목록으로</a>
-  </div>
-
-  <div class="room-header">
-    <div>
-      <h1 class="room-title">{{ room.room_name }}</h1>
-      <div class="room-meta-row">
-        <span class="room-meta-item">
-          생성일: {{ room.created_at.strftime('%Y년 %m월 %d일') if room.created_at else '—' }}
-        </span>
-        {% if room.owner_id|string == session.get('user_id') %}
-          <span class="owner-badge">방장</span>
-        {% endif %}
+<div class="container my-5">
+  
+  <div class="row justify-content-center">
+    
+    <div class="col-12 col-lg-8">
+      
+      <div class="mb-4">
+        <a href="{{ url_for('room.room_list') }}" class="btn-ghost" style="font-size:.85rem; padding:.4rem .9rem;">← 그룹 목록으로</a>
       </div>
-    </div>
-    <div class="action-row">
-      <a href="{{ url_for('post.post_list', room_id=room._id) }}" class="btn-accent">게시글 보기</a>
-      <a href="{{ url_for('post.write', room_id=room._id) }}"    class="btn-ghost">글 쓰기</a>
-      {% if room.owner_id|string == session.get('user_id') %}
-        <a href="{{ url_for('room.invite', room_id=room._id) }}" class="btn-ghost">멤버 초대</a>
-        <a href="{{ url_for('room.edit_room_name', room_id=room._id) }}" class="btn-ghost">이름 변경</a>
-      {% endif %}
-    </div>
-  </div>
 
-  <!-- Member list -->
-  {% if members %}
-  <div class="members-section">
-    <div class="members-heading">
-      멤버
-      <span class="members-count">{{ members | length }}</span>
-    </div>
-    <div class="members-grid">
-      {% for member in members %}
-        <div class="member-row">
-          <div class="member-avatar">{{ member.username[0] | upper }}</div>
+      <div class="card bg-surface border border-secondary shadow-2-strong mb-4" style="background-color: #14171f;">
+        <div class="card-body p-4 d-flex justify-content-between align-items-start flex-wrap gap-4">
           <div>
-            <div class="member-name">
-              {{ member.username }}
-              {% if room.owner_id|string == member.user_id %}
-                <span class="owner-badge" style="margin-left:.45rem">방장</span>
+            <h1 class="fw-bold text-white mb-2" style="font-family: 'DM Serif Display', serif; font-size: 1.8rem;">
+              {{ room.room_name }}
+            </h1>
+            <div class="d-flex align-items-center flex-wrap gap-3">
+              <span class="text-muted small">
+                <i class="far fa-calendar-alt me-1"></i>생성일: {{ room.created_at.strftime('%Y.%m.%d') if room.created_at else '—' }}
+              </span>
+              {% if room.owner_id|string == session.get('user_id') %}
+                <span class="owner-badge">방장</span>
               {% endif %}
             </div>
-            <div class="member-joined">
-              {{ member.joined_at.strftime('%Y.%m.%d 참여') if member.joined_at else '' }}
-            </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
 
-  <!-- Danger zone -->
-  <div class="danger-zone">
-    <div class="d-flex gap-2 flex-wrap">
-      {% if room.owner_id|string != session.get('user_id') %}
-        <form method="POST" action="{{ url_for('room.leave', room_id=room._id) }}"
-              onsubmit="return confirm('정말 이 방에서 나가시겠어요?')">
-          <button type="submit" class="btn-danger">그룹 나가기</button>
-        </form>
-      {% else %}
-        <form method="POST" action="{{ url_for('room.remove', room_id=room._id) }}"
-              onsubmit="return confirm('그룹을 삭제하면 모든 게시글도 삭제됩니다. 계속하시겠어요?')">
-          <button type="submit" class="btn-danger">그룹 삭제</button>
-        </form>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('post.post_list', room_id=room._id) }}" class="btn-accent shadow-1">피드 보기</a>
+            <a href="{{ url_for('post.write', room_id=room._id) }}" class="btn-outline-secondary btn shadow-0 text-white" style="border-radius: 10px;">글 쓰기</a>
+            
+            {% if room.owner_id|string == session.get('user_id') %}
+              <a href="{{ url_for('room.invite', room_id=room._id) }}" class="btn-ghost">초대</a>
+              <a href="{{ url_for('room.edit_room_name', room_id=room._id) }}" class="btn-ghost">이름 변경</a>
+            {% endif %}
+          </div>
+          
+        </div>
+      </div>
+
+      {% if members %}
+      <div class="card bg-surface border border-secondary shadow-1 mb-4" style="background-color: #14171f;">
+        <div class="card-body p-4">
+          
+          <div class="members-heading">
+            그룹 멤버
+            <span class="members-count">{{ members | length }}</span>
+          </div>
+          
+          <div class="d-flex flex-column gap-1">
+            {% for member in members %}
+              <div class="member-row">
+                <div class="member-avatar shadow-sm">{{ member.username[0] | upper }}</div>
+                
+                <div class="d-flex flex-column">
+                  <div class="text-white fw-bold" style="font-size: .95rem;">
+                    {{ member.username }}
+                    {% if room.owner_id|string == member.user_id %}
+                      <span class="owner-badge" style="margin-left: .45rem; padding: .15rem .5rem; font-size: .7rem;">방장</span>
+                    {% endif %}
+                  </div>
+                  <div class="text-muted" style="font-size: .75rem; margin-top: 2px;">
+                    {{ member.joined_at.strftime('%Y.%m.%d 참여') if member.joined_at else '' }}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+        </div>
+      </div>
       {% endif %}
-    </div>
-  </div>
-</div>
-{% endblock %}
+
+      <div class="danger-zone shadow-sm mt-5">
+        <div class="d-flex gap-3 flex-wrap align-items-center justify-content-between">
+          
+          <div class="text-danger small fw-bold" style="letter-spacing: .05em;">
+            <i class="fas fa-exclamation-triangle me-2"></i>DANGER ZONE
+          </div>
+
+          {% if room.owner_id|string != session.get('user_id') %}
+            <form method="POST" action="{{ url_for('room.leave', room_id=room._id) }}" onsubmit="return confirm('정말 이 그룹에서 나가시겠어요? 작성한 일기가 모두 삭제될 수 있습니다.')" class="m-0">
+              <button type="submit" class="btn btn-danger btn-rounded shadow-0 px-4">그룹 나가기</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('room.remove', room_id=room._id) }}" onsubmit="return confirm('방을 삭제하면 멤버들의 모든 일기 데이터가 영구 삭제됩니다. 계속하시겠어요?')" class="m-0">
+              <button type="submit" class="btn btn-danger btn-rounded shadow-0 px-4">그룹 폭파하기</button>
+            </form>
+          {% endif %}
+          
+        </div>
+      </div>
+
+    </div> </div> </div> {% endblock %}

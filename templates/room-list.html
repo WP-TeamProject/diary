@@ -1,41 +1,30 @@
-{% extends "base.html" %}
-{% block title %}내 그룹 — Moodiary{% endblock %}
+{% extends "base.html" %} {% block title %}내 그룹 — Moodiary{% endblock %}
 
 {% block extra_head %}
 <style>
-  .rooms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-    margin-top: 1.5rem;
-  }
   .room-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 1.5rem;
     text-decoration: none;
     color: var(--text);
     transition: border-color .25s, transform .2s;
-    display: block;
+    display: block; 
+    height: 100%;
   }
-  .room-card:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+  .room-card:hover { border-color: var(--accent); transform: translateY(-3px); color: var(--text); }
+  
   .room-name {
     font-family: 'DM Serif Display', serif;
-    font-size: 1.15rem;
-    margin-bottom: .5rem;
+    font-size: 1.25rem;
+    margin-bottom: .4rem;
   }
-  .room-meta { color: var(--muted); font-size: .8rem; }
-  .room-icon {
-    font-size: 1.6rem;
-    margin-bottom: .75rem;
-  }
+
 
   .create-room-card {
     background: transparent;
     border: 2px dashed var(--border);
     border-radius: 16px;
-    padding: 1.5rem;
     text-decoration: none;
     color: var(--muted);
     transition: border-color .25s, color .25s;
@@ -43,59 +32,70 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: .5rem;
-    min-height: 130px;
-    font-size: .9rem;
+    height: 100%;
+    min-height: 140px;
   }
   .create-room-card:hover { border-color: var(--accent); color: var(--accent2); }
-  .create-room-card .plus { font-size: 1.8rem; }
-
-  .empty-state {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--muted);
-  }
-  .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
-  .empty-state h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.4rem;
-    color: var(--text);
-    margin-bottom: .5rem;
-  }
+  
+ 
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-wrap">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
-    <div>
-      <h1 class="page-title">내 그룹</h1>
-      <p class="page-sub">초대받은 폐쇄형 그룹에서 소통하세요</p>
+<div class="container my-5">
+  
+  <div class="row align-items-center mb-4">
+    <div class="col-12 col-md-8 text-center text-md-start">
+      <h1 class="page-title text-white">내 그룹</h1>
+      <p class="text-muted mb-0">초대받은 폐쇄형 그룹에서 소통하세요</p>
     </div>
-    <a href="{{ url_for('room.create') }}" class="btn-accent">+ 그룹 만들기</a>
+    
+    <div class="col-12 col-md-4 text-center text-md-end mt-3 mt-md-0">
+      <a href="{{ url_for('room.create') }}" class="btn btn-primary btn-rounded shadow-2-strong">+ 그룹 만들기</a>
+    </div>
   </div>
 
   {% if rooms %}
-    <div class="rooms-grid">
-      {% for room in rooms %}
-        <a href="{{ url_for('room.detail', room_id=room._id) }}" class="room-card">
-          <div class="room-icon">🏠</div>
-          <div class="room-name">{{ room.room_name }}</div>
-          <div class="room-meta">{{ room.created_at.strftime('%Y.%m.%d') if room.created_at else '' }}</div>
-        </a>
+    <div class="row g-4"> {% for room in rooms %}
+        <div class="col-12 col-md-6 col-lg-4">
+          
+          <a href="{{ url_for('room.detail', room_id=room._id) }}" class="room-card p-4 shadow-1 hover-shadow">
+            <div class="display-6 mb-3">🏠</div> <div class="room-name text-white">{{ room.room_name }}</div>
+            <div class="text-muted small">{{ room.created_at.strftime('%Y.%m.%d') if room.created_at else '' }}</div>
+          </a>
+
+        </div>
       {% endfor %}
-      <a href="{{ url_for('room.create') }}" class="create-room-card">
-        <span class="plus">＋</span>
-        <span>새 그룹 만들기</span>
-      </a>
+      
+      <div class="col-12 col-md-6 col-lg-4">
+        <a href="{{ url_for('room.create') }}" class="create-room-card p-4">
+          <div class="display-6 mb-2">＋</div>
+          <div class="fw-bold">새 그룹 만들기</div>
+        </a>
+      </div>
+
     </div>
+
   {% else %}
-    <div class="empty-state">
-      <div class="emoji">🔒</div>
-      <h3>아직 참여 중인 그룹이 없어요</h3>
-      <p style="margin-bottom:1.5rem">그룹을 만들거나 초대를 기다려 보세요.</p>
-      <a href="{{ url_for('room.create') }}" class="btn-accent">첫 그룹 만들기</a>
+    
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        
+        <div class="card bg-surface border border-secondary shadow-4-strong text-center py-5" style="background-color: #14171f;">
+          <div class="card-body py-4">
+            <div class="display-1 mb-3 animate-pulse">🔒</div>
+            <h3 class="fw-bold text-white mb-2" style="font-family: 'DM Serif Display', serif;">아직 참여 중인 그룹이 없어요</h3>
+            <p class="text-muted mb-4">그룹을 만들거나 초대를 기다려 보세요.</p>
+            <a href="{{ url_for('room.create') }}" class="btn btn-primary btn-lg btn-rounded shadow-2-strong">
+              첫 그룹 만들기
+            </a>
+          </div>
+        </div>
+
+      </div>
     </div>
+
   {% endif %}
+  
 </div>
 {% endblock %}

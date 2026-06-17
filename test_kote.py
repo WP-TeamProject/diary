@@ -1,3 +1,5 @@
+"""KOTE 모델 테스트"""
+
 import requests
 import os
 from dotenv import load_dotenv

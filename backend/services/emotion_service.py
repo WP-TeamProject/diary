@@ -4,6 +4,17 @@ import requests
 PAPAGO_URL = "https://papago.apigw.ntruss.com/nmt/v1/translation"
 HF_API_URL = "https://router.huggingface.co/hf-inference/models/j-hartmann/emotion-english-distilroberta-base"
 
+# 프론트엔드의 static 이미지 매핑을 위한 한글 라벨 변환 딕셔너리 추가
+EMOTION_LABELS_KO = {
+    'anger': '분노',
+    'sadness': '슬프다..',
+    'joy': '야호,기쁘다~',
+    'surprise': '와,놀람',
+    'fear': '두려워..',
+    'disgust': '불쾌해!',
+    'neutral': '무난무난(중립)'
+}
+
 SINGLE_EMOTION_RESPONSES = {
     'anger':   "화 삭히지 말고 수 틀리면 다 끝내버려 ㅋㅋ",
     'sadness': "내가 더 슬픈 얘기 해줄게",
@@ -14,7 +25,6 @@ SINGLE_EMOTION_RESPONSES = {
     'neutral': "무난하다.",
 }
 
-# 감정 두 개인 경우 (순서 무관, frozenset 키)
 TWO_EMOTION_RESPONSES = {
     frozenset({'sadness', 'anger'}):    "눈물을 흘리며 씨를 뿌리는 자는 기쁨으로 거두리로다",
     frozenset({'joy', 'anger'}):        "좋은 일인데 왜 이렇게 화가 나 있지 아무튼 축하한다!! 좋으니까 내일도 글 써줘~ 안 쓰면 찾아간다❤️",
@@ -39,8 +49,11 @@ TWO_EMOTION_RESPONSES = {
     frozenset({'neutral', 'disgust'}):  "세상은 넓고 할 일은 많지 않다",
 }
 
-FALLBACK = {"emotions": ["neutral"], "response": SINGLE_EMOTION_RESPONSES["neutral"]}
-
+FALLBACK = {
+    "emotion_keys": ["neutral"], 
+    "emotion_labels": [EMOTION_LABELS_KO["neutral"]], 
+    "care_message": SINGLE_EMOTION_RESPONSES["neutral"]
+}
 
 def _translate_to_english(korean_text):
     headers = {
@@ -53,11 +66,9 @@ def _translate_to_english(korean_text):
         res = requests.post(PAPAGO_URL, headers=headers, json=data, timeout=5)
         if res.status_code == 200:
             return res.json()["message"]["result"]["translatedText"]
-        print(f"[번역 에러] {res.status_code}: {res.text}")
     except Exception as e:
         print(f"[번역 예외] {e}")
     return None
-
 
 def _analyze_with_hf(english_text):
     headers = {"Authorization": f"Bearer {os.getenv('HF_API_TOKEN')}"}
@@ -67,11 +78,9 @@ def _analyze_with_hf(english_text):
             result = res.json()
             candidates = result[0] if isinstance(result[0], list) else result
             return sorted(candidates, key=lambda x: x['score'], reverse=True)
-        print(f"[HF 에러] {res.status_code}: {res.text}")
     except Exception as e:
         print(f"[HF 예외] {e}")
     return None
-
 
 def analyze_emotion(content):
     english_text = _translate_to_english(content)
@@ -85,16 +94,26 @@ def analyze_emotion(content):
     top_label = candidates[0]['label'].lower()
     top_score = candidates[0]['score']
 
-    # 두 번째 감정이 0.2 이상이고 최고 감정이 0.75 이상이면 두 개 출력
-    if top_score >= 0.75 and len(candidates) > 1:
+    # [수정된 로직] 1등 감정이 0.75 미만(불확실)이고 후보가 여러 개일 때만 상위 2개를 조합합니다.
+    if top_score < 0.75 and len(candidates) > 1:
         second_label = candidates[1]['label'].lower()
-        second_score = candidates[1]['score']
-        if second_score >= 0.2:
-            pair = frozenset({top_label, second_label})
-            response = TWO_EMOTION_RESPONSES.get(
-                pair, SINGLE_EMOTION_RESPONSES.get(top_label, SINGLE_EMOTION_RESPONSES["neutral"])
-            )
-            return {"emotions": [top_label, second_label], "response": response}
+        pair = frozenset({top_label, second_label})
+        
+        # 조합에 맞는 멘트가 없으면 1등 감정의 기본 멘트로 폴백
+        care_message = TWO_EMOTION_RESPONSES.get(
+            pair, SINGLE_EMOTION_RESPONSES.get(top_label, SINGLE_EMOTION_RESPONSES["neutral"])
+        )
+        
+        return {
+            "emotion_keys": [top_label, second_label], # static 이미지 파일명 매칭용 (예: 'joy.png')
+            "emotion_labels": [EMOTION_LABELS_KO.get(top_label, top_label), EMOTION_LABELS_KO.get(second_label, second_label)], # 화면 출력용 한글 라벨
+            "care_message": care_message # 부가 기능 멘트
+        }
 
-    response = SINGLE_EMOTION_RESPONSES.get(top_label, SINGLE_EMOTION_RESPONSES["neutral"])
-    return {"emotions": [top_label], "response": response}
+    # 1등 감정이 0.75 이상이거나 단일 감정일 때
+    care_message = SINGLE_EMOTION_RESPONSES.get(top_label, SINGLE_EMOTION_RESPONSES["neutral"])
+    return {
+        "emotion_keys": [top_label],
+        "emotion_labels": [EMOTION_LABELS_KO.get(top_label, top_label)],
+        "care_message": care_message
+    }

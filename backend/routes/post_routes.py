@@ -60,6 +60,10 @@ def detail(room_id, post_id):
 
     comments = get_comments_by_post(post_id)
 
+    if str(post['author_id']) != str(user_id):
+        # 프라이빗 텍스트 처리 원문은 자신만 확인 가능
+        post['content'] = "🔒 작성자 본인만 원문을 확인할 수 있어요."
+
     return render_template('post-detail.html', post=post, comments=comments)
 
 # 게시글 작성

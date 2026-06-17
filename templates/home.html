@@ -3,12 +3,11 @@
 
 {% block extra_head %}
 <style>
+  /* [팀 고유 디자인 유지] 둥둥 떠다니는 애니메이션과 히어로 뷰포트 유지 */
   .hero {
     min-height: 82vh;
     display: flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
     position: relative;
     overflow: hidden;
   }
@@ -22,7 +21,7 @@
     transform: translate(-50%, -50%);
     pointer-events: none;
   }
-  .hero-inner { position: relative; z-index: 1; max-width: 640px; padding: 0 1.5rem; }
+  .hero-inner { position: relative; z-index: 1; }
   .hero-eyebrow {
     display: inline-block;
     background: rgba(124,106,247,.15);
@@ -48,9 +47,8 @@
     line-height: 1.7;
     margin-bottom: 2.5rem;
   }
-  .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
-  /* floating emotion dots */
+  /* floating emotion dots (그대로 보존) */
   .emotion-orbs {
     position: absolute;
     inset: 0;
@@ -68,37 +66,24 @@
     100% { transform: translateY(-100vh) rotate(360deg); }
   }
 
-  /* features */
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.25rem;
-    margin-top: 4rem;
-  }
+  /* [수정됨] .features-grid 삭제! 레이아웃은 부트스트랩이 담당합니다. 디자인만 남깁니다. */
   .feature-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.75rem 1.5rem;
     transition: border-color .25s, transform .25s;
+    height: 100%; /* 카드 높이 균일화를 위해 추가 */
   }
   .feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-  .feature-icon {
-    font-size: 1.8rem;
-    margin-bottom: .9rem;
-  }
-  .feature-title {
-    font-weight: 500;
-    font-size: 1rem;
-    margin-bottom: .5rem;
-  }
+  .feature-icon { font-size: 1.8rem; margin-bottom: .9rem; }
+  .feature-title { font-weight: 500; font-size: 1rem; margin-bottom: .5rem; }
   .feature-desc { color: var(--muted); font-size: .875rem; line-height: 1.6; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="hero">
-  <!-- floating orbs -->
   <div class="emotion-orbs">
     <div class="orb" style="width:80px;height:80px;background:var(--happy);left:10%;animation-duration:14s;animation-delay:-3s;"></div>
     <div class="orb" style="width:50px;height:50px;background:var(--accent);left:80%;animation-duration:18s;animation-delay:-7s;"></div>
@@ -106,48 +91,60 @@
     <div class="orb" style="width:40px;height:40px;background:var(--normal);left:30%;animation-duration:16s;animation-delay:-10s;"></div>
   </div>
 
-  <div class="hero-inner">
-    <div class="hero-eyebrow">AI 감정 일기장</div>
-    <h1 class="hero-title">
-      오늘의 감정을<br><em>글로 남기세요</em>
-    </h1>
-    <p class="hero-desc">
-      일기를 쓰면 AI가 감정을 분석하고, 당신과 비슷한 감정의 사람들과<br>
-      폐쇄형 그룹에서 조용히 연결됩니다.
-    </p>
-    <div class="hero-cta">
-      {% if session.get('user_id') %}
-        <a href="{{ url_for('room.room_list') }}" class="btn-accent">내 그룹 보기 →</a>
-      {% else %}
-        <a href="{{ url_for('user.register') }}" class="btn-accent">무료로 시작하기 →</a>
-        <a href="{{ url_for('user.login') }}"    class="btn-ghost">로그인</a>
-      {% endif %}
+  <div class="container hero-inner text-center">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="hero-eyebrow">AI 감정 일기장</div>
+        <h1 class="hero-title">
+          오늘의 감정을<br><em>글로 남기세요</em>
+        </h1>
+        <p class="hero-desc">
+          일기를 쓰면 AI가 감정을 분석하고, 당신과 비슷한 감정의 사람들과<br>
+          폐쇄형 그룹에서 조용히 연결됩니다.
+        </p>
+        
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          {% if session.get('user_id') %}
+            <a href="{{ url_for('room.room_list') }}" class="btn-accent">내 그룹 보기 →</a>
+          {% else %}
+            <a href="{{ url_for('user.register') }}" class="btn-accent">무료로 시작하기 →</a>
+            <a href="{{ url_for('user.login') }}" class="btn-ghost">로그인</a>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Features -->
-<div class="page-wrap">
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">📓</div>
-      <div class="feature-title">프라이빗 일기</div>
-      <div class="feature-desc">나만 볼 수 있는 감정 일기. 솔직하게 써도 괜찮아요.</div>
+<div class="container my-5 pb-5">
+  <div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon">📓</div>
+        <div class="feature-title">프라이빗 일기</div>
+        <div class="feature-desc">나만 볼 수 있는 감정 일기. 솔직하게 써도 괜찮아요.</div>
+      </div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🤖</div>
-      <div class="feature-title">AI 감정 분석</div>
-      <div class="feature-desc">글 속에서 행복, 슬픔, 불안 등의 감정을 자동으로 읽어냅니다.</div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI 감정 분석</div>
+        <div class="feature-desc">글 속에서 행복, 슬픔, 불안 등의 감정을 자동으로 읽어냅니다.</div>
+      </div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔒</div>
-      <div class="feature-title">폐쇄형 그룹</div>
-      <div class="feature-desc">초대받은 사람만 들어올 수 있는 조용하고 안전한 공간.</div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">폐쇄형 그룹</div>
+        <div class="feature-desc">초대받은 사람만 들어올 수 있는 조용하고 안전한 공간.</div>
+      </div>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon">🎵</div>
-      <div class="feature-title">음악 추천</div>
-      <div class="feature-desc">분석된 감정에 맞는 플레이리스트를 Spotify에서 추천받아요.</div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="feature-card">
+        <div class="feature-icon">🎵</div>
+        <div class="feature-title">음악 추천</div>
+        <div class="feature-desc">분석된 감정에 맞는 플레이리스트를 Spotify에서 추천받아요.</div>
+      </div>
     </div>
   </div>
 </div>

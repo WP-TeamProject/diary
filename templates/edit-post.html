@@ -1,9 +1,7 @@
-{% extends "base.html" %}
-{% block title %}글 수정 — Moodiary{% endblock %}
+{% extends "base.html" %} {% block title %}글 수정하기 — Moodiary{% endblock %}
 
 {% block extra_head %}
 <style>
-  .write-wrap { max-width: 720px; margin: 0 auto; }
   .ai-notice {
     background: rgba(124,106,247,.1);
     border: 1px solid rgba(124,106,247,.25);
@@ -17,72 +15,67 @@
     color: var(--accent2);
   }
   .ai-notice .icon { font-size: 1.4rem; flex-shrink: 0; }
-  .form-group { margin-bottom: 1.25rem; }
+
   .char-count {
     text-align: right;
     color: var(--muted);
     font-size: .75rem;
     margin-top: .35rem;
   }
-  .btn-row { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.75rem; }
-  .current-emotion {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    margin-bottom: 1.5rem;
-    font-size: .875rem;
-    color: var(--muted);
-  }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-wrap">
-  <div style="margin-bottom:1.25rem">
-    <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}"
-       class="btn-ghost" style="font-size:.85rem;padding:.4rem .9rem;">← 게시글로</a>
-  </div>
+<div class="container my-5">
+  
+  <div class="row justify-content-center">
+    
+    <div class="col-12 col-md-10 col-lg-8">
+      
+      <div style="margin-bottom: 1.25rem;">
+        <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost" style="font-size: .85rem; padding: .4rem .9rem;">
+          ← 작성 취소 및 돌아가기
+        </a>
+      </div>
 
-  <div class="write-wrap">
-    <h1 class="page-title">글 수정</h1>
-    <p class="page-sub">내용을 수정하면 감정이 재분석됩니다</p>
+      <h1 class="page-title">일기 수정하기</h1>
+      <p class="page-sub">감정이나 기억을 다듬어 보세요</p>
 
-    <div class="current-emotion">
-      <span>현재 감정:</span>
-      {% set emotion = post.emotion | default('normal') %}
-      <span class="emotion-badge emotion-{{ emotion }}">
-        {% if emotion == 'happy' %}😊 행복
-        {% elif emotion == 'sad' %}😢 슬픔
-        {% elif emotion == 'angry' %}😠 분노
-        {% elif emotion == 'anxious' %}😰 불안
-        {% else %}😌 평온
-        {% endif %}
-      </span>
-    </div>
+      <div class="ai-notice shadow-sm">
+        <span class="icon">🤖</span>
+        <span>글을 수정하여 저장하면 AI가 감정 페르소나를 다시 분석하여 업데이트합니다.</span>
+      </div>
 
-    <div class="ai-notice">
-      <span class="icon">🤖</span>
-      <span>수정 후 저장하면 AI가 감정을 다시 분석합니다.</span>
-    </div>
+      <div class="card bg-surface border border-secondary shadow-4-strong" style="background-color: #14171f;">
+        <div class="card-body p-4 p-md-5">
+          
+          <form method="POST" action="{{ url_for('post.edit', room_id=post.room_id, post_id=post._id) }}">
+            
+            <div class="form-outline mb-4" data-mdb-input-init>
+              <input type="text" id="title" name="title" class="form-control form-control-lg text-white" value="{{ post.title }}" required />
+              <label class="form-label text-muted" for="title">일기 제목</label>
+            </div>
 
-    <div class="md-card">
-      <form method="POST" action="{{ url_for('post.edit', room_id=post.room_id, post_id=post._id) }}">
-        <div class="form-group">
-          <label class="md-label" for="title">제목</label>
-          <input class="md-input" type="text" id="title" name="title"
-                 value="{{ post.title }}" required />
+            <div class="form-outline mb-1" data-mdb-input-init>
+              <textarea class="form-control text-white" id="content" name="content" rows="8" required oninput="updateCount(this)">{{ post.content }}</textarea>
+              <label class="form-label text-muted" for="content">본문 내용 수정...</label>
+            </div>
+            
+            <div class="char-count mb-4" id="charCount">0자</div>
+
+            <div class="d-flex justify-content-end gap-3 mt-2">
+              <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">취소</a>
+              <button type="submit" class="btn-accent shadow-2-strong">
+                <i class="fas fa-magic me-2"></i>수정 완료 (AI 재분석)
+              </button>
+            </div>
+
+          </form>
+
         </div>
-        <div class="form-group">
-          <label class="md-label" for="content">내용</label>
-          <textarea class="md-input md-textarea" id="content" name="content"
-                    required oninput="updateCount(this)">{{ post.content }}</textarea>
-          <div class="char-count" id="charCount">{{ post.content | length }}자</div>
-        </div>
-        <div class="btn-row">
-          <a href="{{ url_for('post.detail', room_id=post.room_id, post_id=post._id) }}" class="btn-ghost">취소</a>
-          <button type="submit" class="btn-accent">재분석 후 저장</button>
-        </div>
-      </form>
+      </div>
+
     </div>
   </div>
 </div>
@@ -93,5 +86,12 @@
   function updateCount(el) {
     document.getElementById('charCount').textContent = el.value.length + '자';
   }
+
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const contentArea = document.getElementById('content');
+    if (contentArea) {
+      updateCount(contentArea);
+    }
+  });
 </script>
 {% endblock %}

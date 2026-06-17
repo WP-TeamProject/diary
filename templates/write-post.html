@@ -3,7 +3,6 @@
 
 {% block extra_head %}
 <style>
-  .write-wrap { max-width: 720px; margin: 0 auto; }
   .ai-notice {
     background: rgba(124,106,247,.1);
     border: 1px solid rgba(124,106,247,.25);
@@ -17,51 +16,65 @@
     color: var(--accent2);
   }
   .ai-notice .icon { font-size: 1.4rem; flex-shrink: 0; }
-  .form-group { margin-bottom: 1.25rem; }
+  
   .char-count {
     text-align: right;
     color: var(--muted);
     font-size: .75rem;
     margin-top: .35rem;
   }
-  .btn-row { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.75rem; }
+  
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-wrap">
-  <div style="margin-bottom:1.25rem">
-    <a href="{{ url_for('post.post_list', room_id=room_id) }}" class="btn-ghost" style="font-size:.85rem;padding:.4rem .9rem;">← 목록으로</a>
-  </div>
+<div class="container my-5">
+  
+  <div class="row justify-content-center">
+    
+    <div class="col-12 col-md-10 col-lg-8">
+      
+      <div style="margin-bottom: 1.25rem;">
+        <a href="{{ url_for('post.post_list', room_id=room_id) }}" class="btn-ghost" style="font-size: .85rem; padding: .4rem .9rem;">
+          ← 그룹 피드로 돌아가기
+        </a>
+      </div>
 
-  <div class="write-wrap">
-    <h1 class="page-title">새 글 쓰기</h1>
-    <p class="page-sub">오늘의 감정을 솔직하게 적어보세요</p>
+      <h1 class="page-title">새 글 쓰기</h1>
+      <p class="page-sub">오늘의 감정을 솔직하게 적어보세요</p>
 
-    <div class="ai-notice">
-      <span class="icon">🤖</span>
-      <span>글을 저장하면 AI가 감정을 자동으로 분석합니다. 솔직하게 쓸수록 더 정확해요.</span>
-    </div>
+      <div class="ai-notice shadow-sm">
+        <span class="icon">🤖</span>
+        <span>글을 저장하면 AI가 감정을 자동으로 분석합니다. 솔직하게 쓸수록 더 정확해요.</span>
+      </div>
 
-    <div class="md-card">
-      <form method="POST" action="{{ url_for('post.write', room_id=room_id) }}">
-        <div class="form-group">
-          <label class="md-label" for="title">제목</label>
-          <input class="md-input" type="text" id="title" name="title"
-                 placeholder="오늘의 제목을 입력하세요" required />
-        </div>
-        <div class="form-group">
-          <label class="md-label" for="content">내용</label>
-          <textarea class="md-input md-textarea" id="content" name="content"
-                    placeholder="오늘 있었던 일이나 감정을 자유롭게 써보세요..."
-                    required oninput="updateCount(this)"></textarea>
-          <div class="char-count" id="charCount">0자</div>
-        </div>
-        <div class="btn-row">
-          <a href="{{ url_for('post.post_list', room_id=room_id) }}" class="btn-ghost">취소</a>
-          <button type="submit" class="btn-accent">감정 분석 후 저장</button>
-        </div>
-      </form>
+      <div class="md-card shadow-4-strong">
+        
+        <form method="POST" action="{{ url_for('post.write', room_id=room_id) }}">
+          
+          <div class="form-outline mb-4" data-mdb-input-init>
+            <input type="text" id="title" name="title" class="form-control form-control-lg text-white" required />
+            <label class="form-label text-muted" for="title">오늘의 제목을 입력하세요</label>
+          </div>
+
+          <div class="form-outline mb-1" data-mdb-input-init>
+            <textarea class="form-control text-white" id="content" name="content" rows="8" required oninput="updateCount(this)"></textarea>
+            <label class="form-label text-muted" for="content">오늘 있었던 일이나 복잡한 감정을 자유롭게 쏟아내 보세요...</label>
+          </div>
+          
+          <div class="char-count mb-4" id="charCount">0자</div>
+
+          <div class="d-flex justify-content-end gap-3 mt-2">
+            <a href="{{ url_for('post.post_list', room_id=room_id) }}" class="btn-ghost">취소</a>
+            <button type="submit" class="btn-accent shadow-2-strong">
+              <i class="fas fa-magic me-2"></i>감정 분석 후 저장
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
     </div>
   </div>
 </div>

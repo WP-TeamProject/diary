@@ -3,72 +3,58 @@
 
 {% block extra_head %}
 <style>
-  .auth-wrap {
-    min-height: calc(100vh - 120px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-  .auth-card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-  }
   .auth-logo {
     font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: var(--accent2);
     text-align: center;
     margin-bottom: .4rem;
   }
   .auth-logo span { color: var(--accent); }
-  .auth-tagline {
-    text-align: center;
-    color: var(--muted);
-    font-size: .85rem;
-    margin-bottom: 2rem;
-  }
-  .form-group { margin-bottom: 1.25rem; }
-  .auth-footer {
-    text-align: center;
-    margin-top: 1.5rem;
-    color: var(--muted);
-    font-size: .85rem;
-  }
-  .auth-footer a { color: var(--accent2); text-decoration: none; }
-  .auth-footer a:hover { text-decoration: underline; }
-  .btn-full { width: 100%; text-align: center; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-wrap">
-  <div class="auth-card">
-    <div class="auth-logo">mood<span>·</span>iary</div>
-    <div class="auth-tagline">다시 만나서 반가워요 👋</div>
+<div class="container my-5">
+  <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    
+    <div class="col-12 col-md-8 col-lg-5">
+      
+      <div class="card bg-surface border border-secondary shadow-4-strong" style="background-color: #14171f;">
+        <div class="card-body p-5">
+          
+          <div class="auth-logo">mood<span>·</span>iary</div>
+          <p class="text-center text-muted mb-4">다시 만나서 반가워요 👋</p>
 
-    <form method="POST" action="{{ url_for('user.login') }}">
-      <div class="form-group">
-        <label class="md-label" for="username">아이디</label>
-        <input class="md-input" type="text" id="username" name="username"
-               placeholder="아이디를 입력하세요" required autocomplete="username" />
-      </div>
-      <div class="form-group">
-        <label class="md-label" for="password">비밀번호</label>
-        <input class="md-input" type="password" id="password" name="password"
-               placeholder="비밀번호를 입력하세요" required autocomplete="current-password" />
-      </div>
-      <button type="submit" class="btn-accent btn-full" style="margin-top:.5rem;">로그인</button>
-    </form>
+          <form method="POST" action="{{ url_for('user.login') }}">
+            
+            <div class="form-outline mb-4" data-mdb-input-init>
+              <input type="text" id="username" name="username" class="form-control form-control-lg text-white" required autocomplete="username" />
+              <label class="form-label text-muted" for="username">아이디를 입력하세요</label>
+            </div>
 
-    <hr class="md-divider" />
-    <div class="auth-footer">
-      아직 계정이 없으신가요?
-      <a href="{{ url_for('user.register') }}">회원가입</a>
+            <div class="form-outline mb-4" data-mdb-input-init>
+              <input type="password" id="password" name="password" class="form-control form-control-lg text-white" required autocomplete="current-password" />
+              <label class="form-label text-muted" for="password">비밀번호를 입력하세요</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block btn-rounded mt-4 shadow-2-strong">
+              로그인
+            </button>
+          </form>
+
+          <hr class="border-secondary my-4" />
+          
+          <div class="text-center">
+            <p class="mb-0 text-muted">
+              아직 계정이 없으신가요? 
+              <a href="{{ url_for('user.register') }}" class="fw-bold" style="color: #b89eff; text-decoration: none;">회원가입</a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
