@@ -147,18 +147,22 @@ def change_password():
 @login_required
 def withdraw():
     user_id = session.get('user_id')
-
     password = request.form.get('password', '').strip()
+
+    if not password:
+        flash('회원 탈퇴를 위해서는 비밀번호를 입력해야 합니다.')
+        return redirect(request.referrer or url_for('main.home'))
 
     result = delete_user(user_id, password)
 
     if result == 'WRONG_PASSWORD':
         flash('비밀번호가 올바르지 않습니다.')
-        return redirect(url_for('user.mypage'))
+        return redirect(request.referrer or url_for('main.home'))
     elif result == 'DB_FAIL':
-        flash('회원탈퇴에 실패했습니다.')
-        return redirect(url_for('user.mypage'))
+        flash('회원탈퇴 처리에 실패했습니다. 다시 시도해주세요.')
+        return redirect(request.referrer or url_for('main.home'))
 
     session.clear()
-    flash('회원탈퇴가 완료되었습니다.')
-    return redirect(url_for('main.home'))
+    flash('회원탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.')
+    
+    return redirect(url_for('user.login'))

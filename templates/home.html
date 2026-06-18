@@ -3,7 +3,6 @@
 
 {% block extra_head %}
 <style>
-  /* [팀 고유 디자인 유지] 둥둥 떠다니는 애니메이션과 히어로 뷰포트 유지 */
   .hero {
     min-height: 82vh;
     display: flex;
@@ -48,7 +47,6 @@
     margin-bottom: 2.5rem;
   }
 
-  /* floating emotion dots (그대로 보존) */
   .emotion-orbs {
     position: absolute;
     inset: 0;
@@ -66,14 +64,13 @@
     100% { transform: translateY(-100vh) rotate(360deg); }
   }
 
-  /* [수정됨] .features-grid 삭제! 레이아웃은 부트스트랩이 담당합니다. 디자인만 남깁니다. */
   .feature-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.75rem 1.5rem;
     transition: border-color .25s, transform .25s;
-    height: 100%; /* 카드 높이 균일화를 위해 추가 */
+    height: 100%;
   }
   .feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
   .feature-icon { font-size: 1.8rem; margin-bottom: .9rem; }

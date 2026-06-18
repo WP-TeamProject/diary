@@ -85,6 +85,9 @@ def update_password(user_id, old_password, new_password):
 def delete_user(user_id, password):
     user = find_user_by_id(user_id)
 
+    if not user:
+        return 'DB_FAIL'
+
     if not check_password_hash(user['password'], password):
         return 'WRONG_PASSWORD'
 
