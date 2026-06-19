@@ -36,7 +36,7 @@ TWO_EMOTION_RESPONSES = {
     frozenset({'fear', 'sadness'}):     "안 그래도 슬픈데 무섭기까지 하네...",
     frozenset({'fear', 'joy'}):         "잘됐다 근데 떨어지는 낙엽도 조심해",
     frozenset({'fear', 'surprise'}):    "내 무습다 ...",
-    frozenset({'disgust', 'anger'}):    "싸따 내려라. 괜찮다 이거는",
+    frozenset({'disgust', 'anger'}):    "샤따 내려라. 괜찮다 이거는",
     frozenset({'disgust', 'sadness'}):  "세번 참으면 호구다",
     frozenset({'disgust', 'joy'}):      "너무 맛있어서 봤더니 귀뚜라미 먹은 그런 느낌이겠다",
     frozenset({'disgust', 'surprise'}): "불쾌하다.",

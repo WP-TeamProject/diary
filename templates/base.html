@@ -319,9 +319,9 @@
           <a href="{{ url_for('user.change_password') }}" class="udrop-item">🔑 비밀번호 변경</a>
           <div class="udrop-divider"></div>
           <a href="{{ url_for('user.logout') }}" class="udrop-item">로그아웃</a>
-          <form method="POST" action="{{ url_for('user.withdraw') }}"
-                onsubmit="return confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제됩니다.')">
-            <button type="submit" class="udrop-item danger">회원탈퇴</button>
+          <form method="POST" action="{{ url_for('user.withdraw') }}" id="withdrawForm">
+            
+            <button type="button" class="udrop-item danger" onclick="confirmWithdraw()">회원탈퇴</button>
           </form>
         </div>
       </div>
@@ -356,7 +356,7 @@
 
 <!-- ── Footer ── -->
 <footer class="md-footer">
-  © 2026 Moodiary — 감정을 기록하고, 나를 이해하는 공간
+  © 2026 Mood-iary 감정을 기록하고, 나를 이해하는 공간
 </footer>
 
 <!-- MDB JS -->
@@ -381,6 +381,14 @@
       if (caret) caret.style.transform = '';
     }
   });
+
+  function confirmWithdraw() {
+    if (confirm('정말 탈퇴하시겠어요? 모든 데이터가 삭제됩니다.')) {
+      
+        document.getElementById('withdrawForm').submit();
+      }
+    }
+
 </script>
 {% block extra_js %}{% endblock %}
 </body>
